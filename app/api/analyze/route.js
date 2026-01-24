@@ -1,5 +1,279 @@
 import { NextResponse } from 'next/server'
 import * as cheerio from 'cheerio'
+import nlp from 'compromise'
+import { fleschReadingEase, fleschKincaidGrade } from 'readability-scores'
+
+// Helper function to analyze GEO metrics
+function analyzeGEO($, html, bodyText) {
+  let geoScore = 100
+  const geoIssues = []
+  const geoRecommendations = []
+  const geoMetrics = {}
+
+  // 1. Content Structure Analysis (30 points)
+  const headings = {
+    h1: $('h1'),
+    h2: $('h2'),
+    h3: $('h3'),
+    h4: $('h4'),
+    h5: $('h5'),
+    h6: $('h6')
+  }
+
+  // Check heading hierarchy
+  const h1Count = headings.h1.length
+  const h2Count = headings.h2.length
+  const h3Count = headings.h3.length
+  let hierarchyScore = 10
+
+  if (h1Count === 0) {
+    hierarchyScore -= 10
+    geoIssues.push('No H1 heading for topic clarity')
+    geoRecommendations.push('Add a clear H1 heading to establish the main topic')
+  } else if (h1Count > 1) {
+    hierarchyScore -= 5
+    geoIssues.push('Multiple H1 headings may confuse topic identification')
+    geoRecommendations.push('Use only one H1 heading per page')
+  }
+
+  if (h2Count === 0 && bodyText.length > 500) {
+    hierarchyScore -= 3
+    geoIssues.push('No H2 headings to structure content')
+    geoRecommendations.push('Add H2 headings to break content into clear sections')
+  }
+
+  geoMetrics.headingHierarchyScore = Math.max(0, hierarchyScore)
+  geoScore -= (10 - hierarchyScore)
+
+  // Paragraph analysis
+  const paragraphs = $('p').toArray().map(p => $(p).text().trim()).filter(text => text.length > 0)
+  const paragraphWordCounts = paragraphs.map(p => p.split(/\s+/).length)
+  const optimalParagraphs = paragraphWordCounts.filter(count => count >= 40 && count <= 150).length
+  const paragraphScore = paragraphs.length > 0 ? Math.min(10, (optimalParagraphs / paragraphs.length) * 10) : 0
+
+  geoMetrics.totalParagraphs = paragraphs.length
+  geoMetrics.optimalParagraphs = optimalParagraphs
+  geoMetrics.paragraphScore = paragraphScore
+
+  if (paragraphScore < 5) {
+    geoIssues.push('Many paragraphs are too long or too short')
+    geoRecommendations.push('Aim for 40-150 words per paragraph for better AI comprehension')
+  }
+  geoScore -= (10 - paragraphScore)
+
+  // Lists and tables (structured data)
+  const lists = $('ul, ol').length
+  const tables = $('table').length
+  let structuredContentScore = 0
+
+  if (lists > 0) structuredContentScore += 3
+  if (tables > 0) structuredContentScore += 2
+
+  geoMetrics.lists = lists
+  geoMetrics.tables = tables
+  geoMetrics.structuredContentScore = structuredContentScore
+
+  if (lists === 0 && bodyText.length > 1000) {
+    geoIssues.push('No lists found - consider using lists for better information extraction')
+    geoRecommendations.push('Use bullet points or numbered lists for key information')
+  }
+  geoScore -= (5 - structuredContentScore)
+
+  // Content-to-code ratio
+  const textLength = bodyText.length
+  const htmlLength = html.length
+  const contentRatio = textLength / htmlLength
+  let contentRatioScore = contentRatio > 0.25 ? 5 : Math.max(0, contentRatio * 20)
+
+  geoMetrics.contentToCodeRatio = (contentRatio * 100).toFixed(1) + '%'
+  geoMetrics.contentRatioScore = contentRatioScore
+
+  if (contentRatio < 0.25) {
+    geoIssues.push('Low content-to-code ratio may indicate too much markup')
+    geoRecommendations.push('Increase meaningful text content relative to HTML markup')
+  }
+  geoScore -= (5 - contentRatioScore)
+
+  // 2. Natural Language Quality (35 points)
+  if (bodyText.length > 100) {
+    // Readability score (Flesch Reading Ease)
+    try {
+      const readabilityScore = fleschReadingEase(bodyText)
+      const gradeLevel = fleschKincaidGrade(bodyText)
+
+      geoMetrics.readabilityScore = readabilityScore.toFixed(1)
+      geoMetrics.gradeLevel = gradeLevel.toFixed(1)
+
+      let readabilityPoints = 0
+      if (readabilityScore >= 60 && readabilityScore <= 80) {
+        readabilityPoints = 15
+      } else if (readabilityScore >= 50 && readabilityScore < 60) {
+        readabilityPoints = 12
+        geoIssues.push('Content is slightly difficult to read')
+        geoRecommendations.push('Simplify sentence structure for better accessibility')
+      } else if (readabilityScore >= 80) {
+        readabilityPoints = 12
+        geoIssues.push('Content may be too simple')
+      } else {
+        readabilityPoints = 8
+        geoIssues.push('Content is difficult to read')
+        geoRecommendations.push('Break down complex sentences and use simpler language')
+      }
+
+      geoScore -= (15 - readabilityPoints)
+    } catch (e) {
+      // Readability calculation failed
+      geoScore -= 10
+    }
+
+    // Entity extraction using NLP
+    const doc = nlp(bodyText)
+    const people = doc.people().out('array')
+    const places = doc.places().out('array')
+    const organizations = doc.organizations().out('array')
+    const totalEntities = people.length + places.length + organizations.length
+    const wordCount = bodyText.split(/\s+/).length
+    const entityDensity = (totalEntities / wordCount) * 500 // entities per 500 words
+
+    geoMetrics.entities = {
+      people: people.length,
+      places: places.length,
+      organizations: organizations.length,
+      total: totalEntities
+    }
+    geoMetrics.entityDensity = entityDensity.toFixed(1)
+
+    let entityScore = Math.min(10, entityDensity * 2)
+    if (entityDensity < 5) {
+      geoIssues.push('Low entity richness may reduce context for AI')
+      geoRecommendations.push('Include more specific names, places, and organizations')
+    }
+    geoScore -= (10 - entityScore)
+
+    // Question-answer patterns
+    const questions = doc.questions().out('array')
+    geoMetrics.questions = questions.length
+
+    let qaScore = questions.length > 0 ? 5 : 0
+    if (questions.length === 0 && bodyText.length > 1000) {
+      geoIssues.push('No question-answer patterns found')
+      geoRecommendations.push('Consider adding FAQ sections for common questions')
+    }
+    geoScore -= (5 - qaScore)
+
+    // Keyword density (avoid over-optimization)
+    const terms = doc.terms().out('array')
+    const uniqueTerms = new Set(terms.map(t => t.toLowerCase()))
+    const keywordDensity = ((terms.length - uniqueTerms.size) / terms.length) * 100
+
+    geoMetrics.keywordDensity = keywordDensity.toFixed(1) + '%'
+
+    let keywordScore = 5
+    if (keywordDensity > 3) {
+      keywordScore = 2
+      geoIssues.push('High keyword density suggests over-optimization')
+      geoRecommendations.push('Write more naturally and avoid keyword stuffing')
+    } else if (keywordDensity < 1) {
+      keywordScore = 3
+      geoIssues.push('Very low keyword repetition')
+    }
+    geoScore -= (5 - keywordScore)
+  } else {
+    geoScore -= 35
+    geoIssues.push('Insufficient content for natural language analysis')
+    geoRecommendations.push('Add more substantial text content (at least 100 words)')
+  }
+
+  // 3. Structured Data Analysis (25 points)
+  const jsonLdScripts = $('script[type="application/ld+json"]')
+  const hasStructuredData = jsonLdScripts.length > 0
+
+  geoMetrics.structuredData = {
+    hasJsonLd: hasStructuredData,
+    scriptCount: jsonLdScripts.length,
+    schemas: []
+  }
+
+  let structuredDataScore = 0
+  if (hasStructuredData) {
+    structuredDataScore = 15
+    jsonLdScripts.each((i, script) => {
+      try {
+        const data = JSON.parse($(script).html())
+        const schemaType = data['@type'] || 'Unknown'
+        geoMetrics.structuredData.schemas.push(schemaType)
+
+        // Check for specific schemas
+        if (schemaType === 'FAQPage' || data['@type'] === 'Question') {
+          structuredDataScore += 5
+        }
+        if (schemaType === 'Article' || schemaType === 'BlogPosting') {
+          structuredDataScore += 5
+        }
+        if (schemaType === 'HowTo') {
+          structuredDataScore += 5
+        }
+      } catch (e) {
+        // Invalid JSON-LD
+      }
+    })
+  } else {
+    geoIssues.push('No structured data (Schema.org) found')
+    geoRecommendations.push('Add JSON-LD structured data for better AI understanding')
+  }
+
+  structuredDataScore = Math.min(25, structuredDataScore)
+  geoScore -= (25 - structuredDataScore)
+
+  // 4. AI-Friendly Signals (10 points)
+  // Check for definition patterns
+  const definitions = bodyText.match(/(?:is|are|means|refers to|defined as)\s+(?:a|an|the)?\s*[\w\s]+/gi) || []
+  let definitionScore = Math.min(3, definitions.length * 0.5)
+
+  if (definitions.length === 0) {
+    geoIssues.push('No clear definitions found')
+    geoRecommendations.push('Include clear definitions of key terms')
+  }
+  geoScore -= (3 - definitionScore)
+
+  // Check for examples
+  const examples = bodyText.match(/(?:for example|for instance|such as|like|e\.g\.)/gi) || []
+  let exampleScore = Math.min(2, examples.length * 0.5)
+
+  geoMetrics.examples = examples.length
+  if (examples.length === 0 && bodyText.length > 800) {
+    geoIssues.push('No examples or illustrations found')
+    geoRecommendations.push('Add concrete examples to clarify concepts')
+  }
+  geoScore -= (2 - exampleScore)
+
+  // Topic sentences (first sentence of paragraphs should be clear)
+  let topicSentenceScore = 5
+  if (paragraphs.length > 3) {
+    const firstSentences = paragraphs.map(p => {
+      const sentences = p.split(/[.!?]+/)
+      return sentences[0] || ''
+    }).filter(s => s.length > 0)
+
+    const shortFirstSentences = firstSentences.filter(s => s.split(/\s+/).length < 5).length
+    if (shortFirstSentences / firstSentences.length > 0.5) {
+      topicSentenceScore = 2
+      geoIssues.push('Many paragraphs lack clear topic sentences')
+      geoRecommendations.push('Start paragraphs with clear, descriptive topic sentences')
+    }
+  }
+  geoScore -= (5 - topicSentenceScore)
+
+  // Ensure score stays within bounds
+  geoScore = Math.max(0, Math.min(100, geoScore))
+
+  return {
+    geoScore: Math.round(geoScore),
+    geoIssues,
+    geoRecommendations,
+    geoMetrics
+  }
+}
 
 export async function POST(request) {
   try {
@@ -18,6 +292,9 @@ export async function POST(request) {
     
     const html = await response.text()
     const $ = cheerio.load(html)
+
+    // Extract body text for GEO analysis
+    const bodyText = $('body').text().replace(/\s+/g, ' ').trim()
 
     // Extract SEO elements
     const title = $('title').text() || ''
@@ -92,6 +369,9 @@ export async function POST(request) {
     // Ensure score doesn't go below 0
     score = Math.max(0, score)
 
+    // Perform GEO analysis
+    const geoAnalysis = analyzeGEO($, html, bodyText)
+
     return NextResponse.json({
       score,
       title,
@@ -106,6 +386,11 @@ export async function POST(request) {
       totalImages,
       issues,
       recommendations,
+      // GEO Analysis results
+      geoScore: geoAnalysis.geoScore,
+      geoIssues: geoAnalysis.geoIssues,
+      geoRecommendations: geoAnalysis.geoRecommendations,
+      geoMetrics: geoAnalysis.geoMetrics,
     })
 
   } catch (error) {
