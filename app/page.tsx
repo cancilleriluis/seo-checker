@@ -122,77 +122,263 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-10 animate-blob animation-delay-2000"></div>
-      </div>
-
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-        
-        {/* Header */}
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100/80 border border-blue-300 rounded-full text-sm text-blue-800 font-medium">
-            <Sparkles className="w-4 h-4" />
-            <span>Free SEO Analysis Tool</span>
-          </div>
-          
-          <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-slate-900">
-            SEO Score Checker
-          </h1>
-          
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Get instant insights into your website's SEO and GEO performance.
-            Analyze meta tags, content structure, readability, and AI-friendliness.
-          </p>
-        </div>
-
-        {/* Input Section */}
-        <Card className="border-2 shadow-xl bg-white/90 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-blue-600" />
-              Analyze Website
-            </CardTitle>
-            <CardDescription>
-              Enter any URL to get a comprehensive SEO analysis
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3">
-              <Input
-                placeholder="https://example.com"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && analyzeSEO()}
-                className="flex-1 h-12 text-lg"
-              />
-              <Button 
-                onClick={analyzeSEO}
-                disabled={loading || !url}
-                size="lg"
-                className="px-8 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-              >
-                {loading ? (
-                  <>
-                    <BarChart3 className="w-4 h-4 mr-2 animate-pulse" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Analyze
-                  </>
-                )}
-              </Button>
+    <div className="min-h-screen bg-slate-50">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
+        {/* Top navigation */}
+        <header className="mb-10 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+              <Search className="h-4 w-4" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-sm font-semibold tracking-tight text-slate-900">
+                SEO Score Checker
+              </p>
+              <p className="text-xs text-slate-500">
+                Instant SEO & GEO audits
+              </p>
+            </div>
+          </div>
+          <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+            <a href="#features" className="hover:text-slate-900">
+              Features
+            </a>
+            <a href="#how-it-works" className="hover:text-slate-900">
+              How it works
+            </a>
+            <a href="#reviews" className="hover:text-slate-900">
+              Reviews
+            </a>
+          </nav>
+        </header>
 
-        {/* Showcase Section */}
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] items-start">
+        {/* Hero */}
+        <section className="mb-10 grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+              <Sparkles className="h-3 w-3" />
+              <span>Free, no signup required</span>
+            </div>
+            <div className="space-y-3">
+              <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                Instant SEO & GEO audit for any URL.
+              </h1>
+              <p className="text-sm text-slate-600 sm:text-base">
+                Paste a page URL and get a full report on meta tags, headings, content structure,
+                readability, entities, and structured data—optimized for both search engines and AI systems.
+              </p>
+            </div>
+
+            <Card className="border bg-white shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Search className="h-4 w-4 text-blue-600" />
+                  Check a live page
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Enter any public URL to run an instant SEO + GEO analysis.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Input
+                    placeholder="https://your-website.com/page"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && analyzeSEO()}
+                    className="h-11 flex-1 text-sm"
+                  />
+                  <Button
+                    onClick={analyzeSEO}
+                    disabled={loading || !url}
+                    size="sm"
+                    className="h-11 px-5 text-sm font-semibold"
+                  >
+                    {loading ? (
+                      <>
+                        <BarChart3 className="mr-2 h-4 w-4 animate-pulse" />
+                        Analyzing…
+                      </>
+                    ) : (
+                      <>
+                        <Search className="mr-2 h-4 w-4" />
+                        Analyze now
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  No crawling limits for personal use. Works best with full content pages like landing pages,
+                  blog posts, or docs.
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500">
+              <span className="font-medium text-slate-600">Trusted by teams who care about:</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">On-page SEO</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">Content design</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">AI search visibility</span>
+            </div>
+          </div>
+
+          <Card className="border bg-white shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-slate-900">
+                Snapshot of a typical audit
+              </CardTitle>
+              <CardDescription className="text-xs">
+                See the kind of insights you&apos;ll get before you run your first check.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-xl border bg-slate-50 p-3">
+                  <p className="mb-1 text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                    SEO score
+                  </p>
+                  <p className="text-2xl font-semibold text-green-600">88 / 100</p>
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    Strong meta tags, clean headings, and descriptive URLs.
+                  </p>
+                </div>
+                <div className="rounded-xl border bg-slate-50 p-3">
+                  <p className="mb-1 text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                    GEO score
+                  </p>
+                  <p className="text-2xl font-semibold text-blue-600">92 / 100</p>
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    High readability, rich entities, and helpful examples.
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-2 text-xs text-slate-600">
+                <p className="font-medium text-slate-700">Highlights you might see:</p>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    Clear, descriptive H1 and section headings.
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    JSON-LD schema for products, articles, or local business.
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    Balanced keyword usage and readable paragraphs.
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Features + Reviews section */}
+        <section
+          id="features"
+          className="mb-10 grid gap-6 border-y border-slate-100 py-8 lg:grid-cols-[1.4fr_1fr]"
+        >
+          {/* Example Results & Use Cases */}
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold tracking-tight text-slate-900">
+              Understand every part of your page
+            </h2>
+            <p className="text-xs text-slate-600">
+              SEO Score Checker breaks your audit into focused sections so you know exactly what to fix first.
+            </p>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-xl border bg-white p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                  Meta & search preview
+                </p>
+                <p className="mt-2 text-sm font-semibold text-slate-900">
+                  Titles, descriptions, and social share snippets at a glance.
+                </p>
+              </div>
+              <div className="rounded-xl border bg-white p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                  Structure & accessibility
+                </p>
+                <p className="mt-2 text-sm font-semibold text-slate-900">
+                  Heading hierarchy, image alt text, and content-to-code ratio.
+                </p>
+              </div>
+              <div className="rounded-xl border bg-white p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                  GEO & AI readiness
+                </p>
+                <p className="mt-2 text-sm font-semibold text-slate-900">
+                  Readability, entities, questions, and structured data coverage.
+                </p>
+              </div>
+            </div>
+
+            <div
+              id="how-it-works"
+              className="grid gap-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 sm:grid-cols-[auto,1fr]"
+            >
+              <div className="flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <span>How it works</span>
+              </div>
+              <ol className="space-y-1.5">
+                <li>1. Paste any public URL with meaningful content.</li>
+                <li>2. We crawl the page and compute SEO + GEO scores.</li>
+                <li>3. You get a prioritized checklist of fixes and opportunities.</li>
+              </ol>
+            </div>
+          </div>
+
+          {/* Social Proof / Reviews */}
+          <div id="reviews" className="space-y-4">
+            <Card className="border bg-white shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Quote className="h-4 w-4 text-indigo-600" />
+                  What people say
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Short, focused audits that slot straight into existing workflows.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs text-slate-700">
+                <div className="rounded-lg border bg-slate-50 p-3">
+                  <p>
+                    “We run every new landing page through this tool before it goes live. It catches missing
+                    headings, weak meta tags, and schema gaps in seconds.”
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium text-slate-500">
+                    Growth lead at a B2B SaaS
+                  </p>
+                </div>
+                <div className="rounded-lg border bg-slate-50 p-3">
+                  <p>
+                    “The GEO score is the missing piece—finally a quick way to see if our content is easy for
+                    AI systems to consume, not just search engines.”
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium text-slate-500">
+                    Technical SEO consultant
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Alert className="border-blue-100 bg-blue-50">
+              <Info className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-xs font-semibold">
+                Ready when you are
+              </AlertTitle>
+              <AlertDescription className="text-[11px]">
+                Paste a URL above and run your first audit in under 10 seconds. No login, no tracking, just a
+                clean report you can share with your team.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </section>
+
+        {/* Results Section */}
+        {results && (
+          <div className="space-y-6 py-8">
           {/* Example Results & Use Cases */}
           <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
             <CardHeader className="pb-3">
