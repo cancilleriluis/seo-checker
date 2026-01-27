@@ -28,17 +28,17 @@ function analyzeGEO($, html, bodyText) {
 
   if (h1Count === 0) {
     hierarchyScore -= 10
-    geoIssues.push('No H1 heading for topic clarity')
+    geoIssues.push({ title: 'No H1 heading for topic clarity', description: 'A missing H1 prevents AI from identifying the main topic of the page.', impact: 'high', effort: 'low' })
     geoRecommendations.push('Add a clear H1 heading to establish the main topic')
   } else if (h1Count > 1) {
     hierarchyScore -= 5
-    geoIssues.push('Multiple H1 headings may confuse topic identification')
+    geoIssues.push({ title: 'Multiple H1 headings may confuse topic identification', description: 'Having more than one H1 dilutes the primary topic signal for AI systems.', impact: 'medium', effort: 'low' })
     geoRecommendations.push('Use only one H1 heading per page')
   }
 
   if (h2Count === 0 && bodyText.length > 500) {
     hierarchyScore -= 3
-    geoIssues.push('No H2 headings to structure content')
+    geoIssues.push({ title: 'No H2 headings to structure content', description: 'H2 headings help AI break content into logical sections for extraction.', impact: 'medium', effort: 'low' })
     geoRecommendations.push('Add H2 headings to break content into clear sections')
   }
 
@@ -56,7 +56,7 @@ function analyzeGEO($, html, bodyText) {
   geoMetrics.paragraphScore = paragraphScore
 
   if (paragraphScore < 5) {
-    geoIssues.push('Many paragraphs are too long or too short')
+    geoIssues.push({ title: 'Many paragraphs are too long or too short', description: 'Paragraphs outside the 40-150 word range are harder for AI to parse and summarize.', impact: 'medium', effort: 'medium' })
     geoRecommendations.push('Aim for 40-150 words per paragraph for better AI comprehension')
   }
   geoScore -= (10 - paragraphScore)
@@ -74,7 +74,7 @@ function analyzeGEO($, html, bodyText) {
   geoMetrics.structuredContentScore = structuredContentScore
 
   if (lists === 0 && bodyText.length > 1000) {
-    geoIssues.push('No lists found - consider using lists for better information extraction')
+    geoIssues.push({ title: 'No lists found for information extraction', description: 'Lists help AI systems quickly extract key points and structured information.', impact: 'low', effort: 'low' })
     geoRecommendations.push('Use bullet points or numbered lists for key information')
   }
   geoScore -= (5 - structuredContentScore)
@@ -89,7 +89,7 @@ function analyzeGEO($, html, bodyText) {
   geoMetrics.contentRatioScore = contentRatioScore
 
   if (contentRatio < 0.25) {
-    geoIssues.push('Low content-to-code ratio may indicate too much markup')
+    geoIssues.push({ title: 'Low content-to-code ratio', description: 'Too much HTML markup relative to text content reduces AI extraction quality.', impact: 'medium', effort: 'high' })
     geoRecommendations.push('Increase meaningful text content relative to HTML markup')
   }
   geoScore -= (5 - contentRatioScore)
@@ -109,14 +109,14 @@ function analyzeGEO($, html, bodyText) {
         readabilityPoints = 15
       } else if (readabilityScore >= 50 && readabilityScore < 60) {
         readabilityPoints = 12
-        geoIssues.push('Content is slightly difficult to read')
+        geoIssues.push({ title: 'Content is slightly difficult to read', description: 'A Flesch score below 60 means the content may be hard for AI to summarize clearly.', impact: 'medium', effort: 'high' })
         geoRecommendations.push('Simplify sentence structure for better accessibility')
       } else if (readabilityScore >= 80) {
         readabilityPoints = 12
-        geoIssues.push('Content may be too simple')
+        geoIssues.push({ title: 'Content may be too simple', description: 'Overly simple content may lack the depth AI needs to generate authoritative answers.', impact: 'low', effort: 'medium' })
       } else {
         readabilityPoints = 8
-        geoIssues.push('Content is difficult to read')
+        geoIssues.push({ title: 'Content is difficult to read', description: 'Complex language significantly reduces AI comprehension and summarization quality.', impact: 'high', effort: 'high' })
         geoRecommendations.push('Break down complex sentences and use simpler language')
       }
 
@@ -145,7 +145,7 @@ function analyzeGEO($, html, bodyText) {
 
     let entityScore = Math.min(10, entityDensity * 2)
     if (entityDensity < 5) {
-      geoIssues.push('Low entity richness may reduce context for AI')
+      geoIssues.push({ title: 'Low entity richness may reduce context for AI', description: 'Named entities (people, places, organizations) help AI ground content in factual context.', impact: 'medium', effort: 'medium' })
       geoRecommendations.push('Include more specific names, places, and organizations')
     }
     geoScore -= (10 - entityScore)
@@ -156,7 +156,7 @@ function analyzeGEO($, html, bodyText) {
 
     let qaScore = questions.length > 0 ? 5 : 0
     if (questions.length === 0 && bodyText.length > 1000) {
-      geoIssues.push('No question-answer patterns found')
+      geoIssues.push({ title: 'No question-answer patterns found', description: 'FAQ-style content is heavily favored by AI for direct answer extraction.', impact: 'high', effort: 'medium' })
       geoRecommendations.push('Consider adding FAQ sections for common questions')
     }
     geoScore -= (5 - qaScore)
@@ -171,16 +171,16 @@ function analyzeGEO($, html, bodyText) {
     let keywordScore = 5
     if (keywordDensity > 3) {
       keywordScore = 2
-      geoIssues.push('High keyword density suggests over-optimization')
+      geoIssues.push({ title: 'High keyword density suggests over-optimization', description: 'Keyword stuffing can cause AI to flag content as low quality or spammy.', impact: 'high', effort: 'medium' })
       geoRecommendations.push('Write more naturally and avoid keyword stuffing')
     } else if (keywordDensity < 1) {
       keywordScore = 3
-      geoIssues.push('Very low keyword repetition')
+      geoIssues.push({ title: 'Very low keyword repetition', description: 'Some keyword repetition helps AI identify topic relevance.', impact: 'low', effort: 'low' })
     }
     geoScore -= (5 - keywordScore)
   } else {
     geoScore -= 35
-    geoIssues.push('Insufficient content for natural language analysis')
+    geoIssues.push({ title: 'Insufficient content for natural language analysis', description: 'Less than 100 words of text is too thin for AI to meaningfully analyze or cite.', impact: 'high', effort: 'high' })
     geoRecommendations.push('Add more substantial text content (at least 100 words)')
   }
 
@@ -218,7 +218,7 @@ function analyzeGEO($, html, bodyText) {
       }
     })
   } else {
-    geoIssues.push('No structured data (Schema.org) found')
+    geoIssues.push({ title: 'No structured data (Schema.org) found', description: 'JSON-LD markup is critical for AI systems to understand page semantics and entity relationships.', impact: 'high', effort: 'high' })
     geoRecommendations.push('Add JSON-LD structured data for better AI understanding')
   }
 
@@ -231,7 +231,7 @@ function analyzeGEO($, html, bodyText) {
   let definitionScore = Math.min(3, definitions.length * 0.5)
 
   if (definitions.length === 0) {
-    geoIssues.push('No clear definitions found')
+    geoIssues.push({ title: 'No clear definitions found', description: 'Explicit definitions help AI extract and present accurate information about key concepts.', impact: 'medium', effort: 'low' })
     geoRecommendations.push('Include clear definitions of key terms')
   }
   geoScore -= (3 - definitionScore)
@@ -242,7 +242,7 @@ function analyzeGEO($, html, bodyText) {
 
   geoMetrics.examples = examples.length
   if (examples.length === 0 && bodyText.length > 800) {
-    geoIssues.push('No examples or illustrations found')
+    geoIssues.push({ title: 'No examples or illustrations found', description: 'Concrete examples improve AI understanding and make content more citable.', impact: 'low', effort: 'low' })
     geoRecommendations.push('Add concrete examples to clarify concepts')
   }
   geoScore -= (2 - exampleScore)
@@ -258,7 +258,7 @@ function analyzeGEO($, html, bodyText) {
     const shortFirstSentences = firstSentences.filter(s => s.split(/\s+/).length < 5).length
     if (shortFirstSentences / firstSentences.length > 0.5) {
       topicSentenceScore = 2
-      geoIssues.push('Many paragraphs lack clear topic sentences')
+      geoIssues.push({ title: 'Many paragraphs lack clear topic sentences', description: 'AI systems rely on leading sentences to understand paragraph purpose and extract summaries.', impact: 'medium', effort: 'medium' })
       geoRecommendations.push('Start paragraphs with clear, descriptive topic sentences')
     }
   }

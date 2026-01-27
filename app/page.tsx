@@ -20,7 +20,8 @@ import {
   Sparkles,
   BarChart3,
   Brain,
-  Info
+  Info,
+  Quote
 } from 'lucide-react'
 
 interface AnalysisResults {
@@ -189,6 +190,171 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Showcase Section */}
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] items-start">
+          {/* Example Results & Use Cases */}
+          <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+                See it in action
+              </CardTitle>
+              <CardDescription>
+                Typical results from real-world SEO and GEO checks.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-xl border bg-slate-50/80 p-4 space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Blog post
+                  </p>
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    https://content-site.com/ai-guide
+                  </p>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-green-600">88</span>
+                    <span className="text-xs text-slate-500">SEO / 92 GEO</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Clear headings, strong meta tags, and great entity coverage.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border bg-slate-50/80 p-4 space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    SaaS landing
+                  </p>
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    https://product.io
+                  </p>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-yellow-600">73</span>
+                    <span className="text-xs text-slate-500">SEO / 78 GEO</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Good structure, but missing alt text and schema markup.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border bg-slate-50/80 p-4 space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    Local business
+                  </p>
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    https://bakery.local
+                  </p>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-red-600">42</span>
+                    <span className="text-xs text-slate-500">SEO / 55 GEO</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    Weak meta description, low content-to-code ratio, no entities.
+                  </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Popular use cases
+                  </p>
+                  <ul className="space-y-1 text-sm text-slate-700">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
+                      Optimize new landing pages before launch.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
+                      Compare SEO / GEO quality across competitors.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
+                      Find quick wins: headings, meta tags, alt text.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
+                      Make content easier for AI systems to understand.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    What you&apos;ll see in a report
+                  </p>
+                  <ul className="space-y-1 text-sm text-slate-700">
+                    <li className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      Meta title & description quality and length.
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Hash className="h-4 w-4 text-purple-600" />
+                      Heading hierarchy, H1/H2 counts, and structure.
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-pink-600" />
+                      Image coverage and missing alt attributes.
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-emerald-600" />
+                      GEO metrics: readability, entities, structured data.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Social Proof / Reviews */}
+          <div className="space-y-4">
+            <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Quote className="w-5 h-5 text-indigo-600" />
+                  Loved by marketers & devs
+                </CardTitle>
+                <CardDescription>
+                  How people are using SEO Score Checker in their workflow.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="rounded-lg border bg-slate-50/80 p-3">
+                  <p className="text-sm text-slate-800">
+                    “We run every new landing page through this tool before it goes live. It catches missing
+                    headings, weak meta tags, and schema gaps in seconds.”
+                  </p>
+                  <p className="mt-2 text-xs font-medium text-slate-500">
+                    Growth lead at a B2B SaaS
+                  </p>
+                </div>
+                <div className="rounded-lg border bg-slate-50/80 p-3">
+                  <p className="text-sm text-slate-800">
+                    “The GEO score is the missing piece—finally a quick way to see if our content is easy for
+                    AI systems to consume, not just search engines.”
+                  </p>
+                  <p className="mt-2 text-xs font-medium text-slate-500">
+                    Technical SEO consultant
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Alert className="bg-blue-50 border-blue-200">
+              <Info className="w-4 h-4 text-blue-600" />
+              <AlertTitle className="text-sm font-semibold">
+                Try it with any live URL
+              </AlertTitle>
+              <AlertDescription className="text-xs">
+                Paste a blog post, docs page, product page, or homepage to get a full breakdown of SEO and GEO
+                quality—no signup, no installation.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
 
         {/* Results Section */}
         {results && (
