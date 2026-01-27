@@ -23,7 +23,6 @@ function analyzeGEO($, html, bodyText) {
   // Check heading hierarchy
   const h1Count = headings.h1.length
   const h2Count = headings.h2.length
-  const h3Count = headings.h3.length
   let hierarchyScore = 10
 
   if (h1Count === 0) {
@@ -121,7 +120,7 @@ function analyzeGEO($, html, bodyText) {
       }
 
       geoScore -= (15 - readabilityPoints)
-    } catch (e) {
+    } catch {
       // Readability calculation failed
       geoScore -= 10
     }
@@ -213,7 +212,7 @@ function analyzeGEO($, html, bodyText) {
         if (schemaType === 'HowTo') {
           structuredDataScore += 5
         }
-      } catch (e) {
+      } catch {
         // Invalid JSON-LD
       }
     })
@@ -314,55 +313,55 @@ export async function POST(request) {
     // Title checks
     if (!title) {
       score -= 15
-      issues.push('Missing title tag')
+      issues.push({ title: 'Missing title tag', description: 'The title tag is the most important on-page SEO element and appears in search results.', impact: 'high', effort: 'low' })
       recommendations.push('Add a descriptive title tag')
     } else if (title.length < 30) {
       score -= 10
-      issues.push('Title is too short (should be 50-60 characters)')
+      issues.push({ title: 'Title is too short (should be 50-60 characters)', description: 'Short titles miss keyword opportunities and look incomplete in search results.', impact: 'medium', effort: 'low' })
       recommendations.push('Expand your title to 50-60 characters for better visibility')
     } else if (title.length > 60) {
       score -= 5
-      issues.push('Title is too long (may be truncated in search results)')
+      issues.push({ title: 'Title is too long (may be truncated in search results)', description: 'Titles over 60 characters get cut off in SERPs, losing important keywords.', impact: 'low', effort: 'low' })
       recommendations.push('Shorten title to 50-60 characters')
     }
 
     // Description checks
     if (!description) {
       score -= 15
-      issues.push('Missing meta description')
+      issues.push({ title: 'Missing meta description', description: 'The meta description controls your search result snippet and click-through rate.', impact: 'high', effort: 'low' })
       recommendations.push('Add a compelling meta description (150-160 characters)')
     } else if (description.length < 120) {
       score -= 10
-      issues.push('Meta description is too short')
+      issues.push({ title: 'Meta description is too short', description: 'Short descriptions waste valuable SERP real estate that could attract clicks.', impact: 'medium', effort: 'low' })
       recommendations.push('Expand description to 150-160 characters')
     } else if (description.length > 160) {
       score -= 5
-      issues.push('Meta description is too long')
+      issues.push({ title: 'Meta description is too long', description: 'Descriptions over 160 characters get truncated, potentially cutting off your call to action.', impact: 'low', effort: 'low' })
       recommendations.push('Shorten description to 150-160 characters')
     }
 
     // Open Graph checks
     if (!ogTitle || !ogDescription) {
       score -= 10
-      issues.push('Missing Open Graph tags for social sharing')
+      issues.push({ title: 'Missing Open Graph tags for social sharing', description: 'Without OG tags, social platforms generate poor previews that reduce engagement.', impact: 'medium', effort: 'low' })
       recommendations.push('Add Open Graph meta tags for better social media previews')
     }
 
     // Heading checks
     if (h1Count === 0) {
       score -= 10
-      issues.push('No H1 heading found')
+      issues.push({ title: 'No H1 heading found', description: 'The H1 signals the primary topic to search engines and is critical for ranking.', impact: 'high', effort: 'low' })
       recommendations.push('Add exactly one H1 heading with your main keyword')
     } else if (h1Count > 1) {
       score -= 5
-      issues.push(`Multiple H1 headings found (${h1Count})`)
+      issues.push({ title: `Multiple H1 headings found (${h1Count})`, description: 'Multiple H1s dilute your primary keyword signal and confuse crawlers.', impact: 'medium', effort: 'low' })
       recommendations.push('Use only one H1 heading per page')
     }
 
     // Image alt text checks
     if (imagesWithoutAlt > 0) {
       score -= 10
-      issues.push(`${imagesWithoutAlt} images missing alt text`)
+      issues.push({ title: `${imagesWithoutAlt} images missing alt text`, description: 'Missing alt text hurts accessibility and removes images from image search results.', impact: 'medium', effort: 'medium' })
       recommendations.push('Add descriptive alt text to all images for accessibility and SEO')
     }
 

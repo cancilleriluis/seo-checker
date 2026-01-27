@@ -16,13 +16,21 @@ import {
   AlertCircle,
   TrendingUp,
   FileText,
-  Image as ImageIcon,
   Hash,
   Sparkles,
   BarChart3,
   Brain,
   Info,
+  LayoutGrid,
 } from 'lucide-react'
+import { PriorityMatrix, type PriorityIssue } from '@/components/priority-matrix'
+
+interface IssueObject {
+  title: string
+  description: string
+  impact: 'high' | 'medium' | 'low'
+  effort: 'high' | 'medium' | 'low'
+}
 
 interface AnalysisResults {
   score: number
@@ -36,11 +44,11 @@ interface AnalysisResults {
   imagesWithoutAlt: number
   ogTitle?: string
   ogDescription?: string
-  issues: string[]
+  issues: IssueObject[]
   recommendations: string[]
   // GEO Analysis
   geoScore: number
-  geoIssues: string[]
+  geoIssues: IssueObject[]
   geoRecommendations: string[]
   geoMetrics: {
     headingHierarchyScore?: number
@@ -333,9 +341,13 @@ export default function ResultsPage() {
               </div>
 
               <Tabs defaultValue="seo" className="w-full">
-                <TabsList className="mb-4 grid w-full grid-cols-2">
+                <TabsList className="mb-4 grid w-full grid-cols-3">
                   <TabsTrigger value="seo">Traditional SEO</TabsTrigger>
                   <TabsTrigger value="geo">GEO analysis</TabsTrigger>
+                  <TabsTrigger value="priority">
+                    <LayoutGrid className="mr-1.5 h-3.5 w-3.5" />
+                    Priority Guide
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* SEO tab */}
@@ -429,7 +441,10 @@ export default function ResultsPage() {
                               className="flex items-start gap-3 rounded-lg border border-red-100 bg-red-50 p-3"
                             >
                               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
-                              <span className="text-sm text-slate-700">{issue}</span>
+                              <div>
+                                <span className="text-sm font-medium text-slate-700">{issue.title}</span>
+                                <p className="text-xs text-slate-500 mt-1">{issue.description}</p>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -588,11 +603,10 @@ export default function ResultsPage() {
                           {results.geoIssues.map((issue, index) => (
                             <AccordionItem key={index} value={`issue-${index}`}>
                               <AccordionTrigger className="text-sm">
-                                {issue}
+                                {issue.title}
                               </AccordionTrigger>
                               <AccordionContent className="text-sm text-slate-600">
-                                This issue may affect how AI systems understand and extract
-                                information from your content.
+                                {issue.description}
                               </AccordionContent>
                             </AccordionItem>
                           ))}
@@ -628,6 +642,22 @@ export default function ResultsPage() {
                       </CardContent>
                     </Card>
                   )}
+                </TabsContent>
+
+                {/* Priority Guide tab */}
+                <TabsContent value="priority" className="space-y-6">
+                  <PriorityMatrix
+                    issues={[
+                      ...results.issues.map((issue): PriorityIssue => ({
+                        ...issue,
+                        source: 'seo',
+                      })),
+                      ...results.geoIssues.map((issue): PriorityIssue => ({
+                        ...issue,
+                        source: 'geo',
+                      })),
+                    ]}
+                  />
                 </TabsContent>
               </Tabs>
             </div>
