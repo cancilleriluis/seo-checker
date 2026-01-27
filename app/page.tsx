@@ -121,18 +121,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-10 animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         
         {/* Header */}
         <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-sm text-blue-700 font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100/80 border border-blue-300 rounded-full text-sm text-blue-800 font-medium">
             <Sparkles className="w-4 h-4" />
             <span>Free SEO Analysis Tool</span>
           </div>
@@ -148,7 +149,7 @@ export default function Home() {
         </div>
 
         {/* Input Section */}
-        <Card className="border-2 shadow-xl bg-white/80 backdrop-blur">
+        <Card className="border-2 shadow-xl bg-white/90 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
               <Search className="w-5 h-5 text-blue-600" />
@@ -196,7 +197,7 @@ export default function Home() {
             {/* Dual Score Cards */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* SEO Score Card */}
-              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.score)} bg-white/80 backdrop-blur`}>
+              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.score)} bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200/50`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -227,7 +228,7 @@ export default function Home() {
                           stroke="currentColor"
                           strokeWidth="8"
                           fill="transparent"
-                          className="text-slate-200"
+                          className="text-blue-100"
                         />
                         <circle
                           cx="56"
@@ -248,7 +249,7 @@ export default function Home() {
               </Card>
 
               {/* GEO Score Card */}
-              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.geoScore)} bg-white/80 backdrop-blur`}>
+              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.geoScore)} bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200/50`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -279,7 +280,7 @@ export default function Home() {
                           stroke="currentColor"
                           strokeWidth="8"
                           fill="transparent"
-                          className="text-slate-200"
+                          className="text-blue-100"
                         />
                         <circle
                           cx="56"
@@ -312,7 +313,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-6">
               
               {/* Meta Tags Card */}
-              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-blue-600" />
@@ -349,7 +350,7 @@ export default function Home() {
               </Card>
 
               {/* Page Structure Card */}
-              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
+              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Hash className="w-5 h-5 text-purple-600" />
@@ -383,7 +384,7 @@ export default function Home() {
 
             {/* Issues Card */}
             {results.issues && results.issues.length > 0 && (
-              <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/80 backdrop-blur">
+              <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-red-700">
                     <AlertCircle className="w-5 h-5" />
@@ -408,7 +409,7 @@ export default function Home() {
 
             {/* Recommendations Card */}
             {results.recommendations && results.recommendations.length > 0 && (
-              <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/80 backdrop-blur">
+              <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-green-700">
                     <TrendingUp className="w-5 h-5" />
@@ -437,7 +438,7 @@ export default function Home() {
               {/* GEO Metrics Overview */}
               <div className="grid md:grid-cols-3 gap-6">
                 {results.geoMetrics.readabilityScore && (
-                  <Card className="border shadow-lg bg-white/80 backdrop-blur">
+                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle className="text-sm font-medium text-slate-600">Readability</CardTitle>
                     </CardHeader>
@@ -450,7 +451,7 @@ export default function Home() {
                 )}
 
                 {results.geoMetrics.entities && (
-                  <Card className="border shadow-lg bg-white/80 backdrop-blur">
+                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle className="text-sm font-medium text-slate-600">Entity Richness</CardTitle>
                     </CardHeader>
@@ -467,7 +468,7 @@ export default function Home() {
                 )}
 
                 {results.geoMetrics.contentToCodeRatio && (
-                  <Card className="border shadow-lg bg-white/80 backdrop-blur">
+                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle className="text-sm font-medium text-slate-600">Content Ratio</CardTitle>
                     </CardHeader>
@@ -482,7 +483,7 @@ export default function Home() {
 
               {/* Structured Data */}
               {results.geoMetrics.structuredData && (
-                <Card className="border shadow-lg bg-white/80 backdrop-blur">
+                <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-yellow-600" />
@@ -525,7 +526,7 @@ export default function Home() {
 
               {/* GEO Issues */}
               {results.geoIssues && results.geoIssues.length > 0 && (
-                <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/80 backdrop-blur">
+                <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/90 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-red-700">
                       <AlertCircle className="w-5 h-5" />
@@ -551,7 +552,7 @@ export default function Home() {
 
               {/* GEO Recommendations */}
               {results.geoRecommendations && results.geoRecommendations.length > 0 && (
-                <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/80 backdrop-blur">
+                <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/90 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-green-700">
                       <Brain className="w-5 h-5" />
