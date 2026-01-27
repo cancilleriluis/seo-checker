@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -90,7 +90,6 @@ const getScoreLabel = (score: number) => {
 }
 
 export default function ResultsPage() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
@@ -98,7 +97,10 @@ export default function ResultsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const initialUrl = searchParams.get('url') || ''
+    // Read initial URL from the query string on the client
+    const search = typeof window !== 'undefined' ? window.location.search : ''
+    const params = new URLSearchParams(search)
+    const initialUrl = params.get('url') || ''
     if (initialUrl) {
       setUrl(initialUrl)
       runAnalysis(initialUrl)
