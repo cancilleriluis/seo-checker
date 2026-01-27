@@ -1,19 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Search,
   CheckCircle2,
-  AlertCircle,
-  TrendingUp,
   FileText,
   Image as ImageIcon,
   Hash,
@@ -21,178 +17,124 @@ import {
   BarChart3,
   Brain,
   Info,
-  Quote
+  Quote,
+  AlertCircle,
 } from 'lucide-react'
 
-interface AnalysisResults {
-  score: number
-  title?: string
-  titleLength?: number
-  description?: string
-  descriptionLength?: number
-  h1Count: number
-  h2Count: number
-  totalImages: number
-  imagesWithoutAlt: number
-  ogTitle?: string
-  ogDescription?: string
-  issues: string[]
-  recommendations: string[]
-  // GEO Analysis
-  geoScore: number
-  geoIssues: string[]
-  geoRecommendations: string[]
-  geoMetrics: {
-    headingHierarchyScore?: number
-    totalParagraphs?: number
-    optimalParagraphs?: number
-    paragraphScore?: number
-    lists?: number
-    tables?: number
-    contentToCodeRatio?: string
-    readabilityScore?: string
-    gradeLevel?: string
-    entities?: {
-      people: number
-      places: number
-      organizations: number
-      total: number
-    }
-    entityDensity?: string
-    questions?: number
-    keywordDensity?: string
-    structuredData?: {
-      hasJsonLd: boolean
-      scriptCount: number
-      schemas: string[]
-    }
-    examples?: number
-  }
-}
-
 export default function Home() {
+  const router = useRouter()
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
-  const [results, setResults] = useState<AnalysisResults | null>(null)
 
-  const analyzeSEO = async () => {
-    if (!url) return
-    
-    setLoading(true)
-    setResults(null)
-    
-    try {
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      })
-      
-      const data = await response.json()
-      
-      if (data.error) {
-        alert('Error: ' + data.error)
-      } else {
-        setResults(data)
-      }
-    } catch (error) {
-      alert('Failed to analyze. Please check the URL and try again.')
-    } finally {
-      setLoading(false)
+  const normalizeUrl = (raw: string) => {
+    let value = raw.trim()
+    if (!value) return ''
+    if (!/^https?:\/\//i.test(value)) {
+      value = `https://${value}`
     }
+    return value
   }
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600'
-    if (score >= 60) return 'text-yellow-600'
-    return 'text-red-600'
-  }
-
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return 'bg-green-50 border-green-200'
-    if (score >= 60) return 'bg-yellow-50 border-yellow-200'
-    return 'bg-red-50 border-red-200'
-  }
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excellent'
-    if (score >= 60) return 'Good'
-    if (score >= 40) return 'Needs Work'
-    return 'Poor'
+  const goToResults = () => {
+    const normalized = normalizeUrl(url)
+    if (!normalized) return
+    setLoading(true)
+    router.push(`/results?url=${encodeURIComponent(normalized)}`)
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
-        {/* Top navigation */}
-        <header className="mb-10 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+        {/* Header with glass navigation */}
+        <header className="mb-10 flex flex-col items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/40">
               <Search className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-sm font-semibold tracking-tight text-slate-900">
+              <p className="text-sm font-semibold tracking-tight text-slate-50">
                 SEO Score Checker
               </p>
-              <p className="text-xs text-slate-500">
-                Instant SEO & GEO audits
+              <p className="text-xs text-slate-400">
+                Instant SEO & GEO audits for any URL
               </p>
             </div>
           </div>
-          <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-            <a href="#features" className="hover:text-slate-900">
-              Features
-            </a>
-            <a href="#how-it-works" className="hover:text-slate-900">
-              How it works
-            </a>
-            <a href="#reviews" className="hover:text-slate-900">
-              Reviews
-            </a>
+
+          <nav className="w-full max-w-xl rounded-3xl border border-slate-700/60 bg-slate-900/60 px-2 py-2 text-xs font-medium text-slate-200 shadow-[0_18px_60px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <ul className="flex items-center justify-center gap-2 sm:gap-4">
+              <li>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-2 rounded-2xl px-3 py-1.5 transition-colors hover:bg-slate-800/80"
+                >
+                  <Hash className="h-3 w-3 text-blue-400" />
+                  <span>How it works</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#reviews"
+                  className="inline-flex items-center gap-2 rounded-2xl px-3 py-1.5 transition-colors hover:bg-slate-800/80"
+                >
+                  <Quote className="h-3 w-3 text-emerald-400" />
+                  <span>Reviews</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#implementation"
+                  className="inline-flex items-center gap-2 rounded-2xl px-3 py-1.5 transition-colors hover:bg-slate-800/80"
+                >
+                  <Brain className="h-3 w-3 text-sky-400" />
+                  <span>How to implement</span>
+                </a>
+              </li>
+            </ul>
           </nav>
         </header>
 
         {/* Hero */}
-        <section className="mb-10 grid gap-10 lg:grid-cols-2 lg:items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+        <section className="mb-14 grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-100 shadow-sm">
               <Sparkles className="h-3 w-3" />
-              <span>Free, no signup required</span>
+              <span>Made for modern SEO & AI search</span>
             </div>
-            <div className="space-y-3">
-              <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-                Instant SEO & GEO audit for any URL.
+            <div className="space-y-4">
+              <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
+                See how AI and search engines really see your page.
               </h1>
-              <p className="text-sm text-slate-600 sm:text-base">
-                Paste a page URL and get a full report on meta tags, headings, content structure,
-                readability, entities, and structured data—optimized for both search engines and AI systems.
+              <p className="text-sm text-slate-300 sm:text-base">
+                Paste a URL and get a side‑by‑side SEO and GEO report—meta tags, headings, content structure,
+                entities, and structured data—so AI models can finally find and understand your brand.
               </p>
             </div>
 
-            <Card className="border bg-white shadow-sm">
+            <Card className="border border-slate-700/60 bg-slate-900/60 shadow-[0_18px_60px_rgba(15,23,42,0.9)] backdrop-blur-xl">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Search className="h-4 w-4 text-blue-600" />
+                <CardTitle className="flex items-center gap-2 text-sm text-slate-50">
+                  <Search className="h-4 w-4 text-blue-400" />
                   Check a live page
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs text-slate-400">
                   Enter any public URL to run an instant SEO + GEO analysis.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Input
-                    placeholder="https://your-website.com/page"
+                    placeholder="your-website.com/page"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && analyzeSEO()}
-                    className="h-11 flex-1 text-sm"
+                    onKeyDown={(e) => e.key === 'Enter' && goToResults()}
+                    className="h-11 flex-1 border-slate-700 bg-slate-900/70 text-sm text-slate-50 placeholder:text-slate-500 focus-visible:border-blue-400"
                   />
                   <Button
-                    onClick={analyzeSEO}
+                    onClick={goToResults}
                     disabled={loading || !url}
                     size="sm"
-                    className="h-11 px-5 text-sm font-semibold"
+                    className="h-11 px-5 text-sm font-semibold bg-blue-500 text-slate-950 hover:bg-blue-400"
                   >
                     {loading ? (
                       <>
@@ -207,65 +149,135 @@ export default function Home() {
                     )}
                   </Button>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  No crawling limits for personal use. Works best with full content pages like landing pages,
-                  blog posts, or docs.
+                <p className="text-[11px] text-slate-400">
+                  We&apos;ll automatically add <span className="font-mono text-slate-200">https://</span> if it&apos;s
+                  missing. Works best with full content pages like landing pages, blog posts, or docs.
                 </p>
               </CardContent>
             </Card>
 
-            <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500">
-              <span className="font-medium text-slate-600">Trusted by teams who care about:</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">On-page SEO</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">Content design</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">AI search visibility</span>
+            <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300">
+              <span className="font-medium text-slate-200">Great for teams focused on:</span>
+              <span className="rounded-full bg-slate-900/80 px-3 py-1 ring-1 ring-slate-700">
+                On‑page SEO
+              </span>
+              <span className="rounded-full bg-slate-900/80 px-3 py-1 ring-1 ring-slate-700">
+                Content design
+              </span>
+              <span className="rounded-full bg-slate-900/80 px-3 py-1 ring-1 ring-slate-700">
+                AI search visibility
+              </span>
             </div>
           </div>
 
-          <Card className="border bg-white shadow-sm">
+          {/* Before / After visual */}
+          <Card className="border border-slate-700/70 bg-slate-900/70 shadow-[0_18px_60px_rgba(15,23,42,0.9)] backdrop-blur-xl">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-slate-900">
-                Snapshot of a typical audit
+              <CardTitle className="text-sm font-semibold text-slate-50">
+                Before vs after implementing fixes
               </CardTitle>
-              <CardDescription className="text-xs">
-                See the kind of insights you&apos;ll get before you run your first check.
+              <CardDescription className="text-xs text-slate-400">
+                A simplified example of how your page can change once you ship the recommended updates.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-xl border bg-slate-50 p-3">
-                  <p className="mb-1 text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    SEO score
-                  </p>
-                  <p className="text-2xl font-semibold text-green-600">88 / 100</p>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    Strong meta tags, clean headings, and descriptive URLs.
-                  </p>
+              <div className="grid gap-3 text-xs md:grid-cols-2">
+                {/* Before */}
+                <div className="space-y-2 rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-950/70 via-slate-950/70 to-slate-950/70 p-3">
+                  <div className="mb-2 flex items-center justify-between text-[11px] text-slate-300">
+                    <span className="font-medium uppercase tracking-wide text-red-200">
+                      Before
+                    </span>
+                    <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] text-red-100">
+                      SEO 42 · GEO 55
+                    </span>
+                  </div>
+                  <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/80">
+                    <div className="flex items-center gap-1 border-b border-slate-800 bg-slate-900 px-2 py-1.5">
+                      <span className="h-2 w-2 rounded-full bg-red-500" />
+                      <span className="h-2 w-2 rounded-full bg-amber-400" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="ml-2 text-[10px] text-slate-400">
+                        your‑product.com
+                      </span>
+                    </div>
+                    <div className="space-y-1 px-3 py-2 text-[11px] text-slate-400">
+                      <p className="line-clamp-1 font-medium">
+                        Home | Welcome | Company | Start
+                      </p>
+                      <p className="line-clamp-2">
+                        We&apos;re passionate about excellence and innovation across multiple
+                        verticals and paradigms…
+                      </p>
+                      <ul className="mt-2 space-y-1">
+                        <li className="flex items-center gap-2">
+                          <AlertCircle className="h-3 w-3 text-red-400" />
+                          <span>No H1, multiple H3s, scattered content.</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <AlertCircle className="h-3 w-3 text-red-400" />
+                          <span>Generic meta, no schema, keyword stuffing.</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-                <div className="rounded-xl border bg-slate-50 p-3">
-                  <p className="mb-1 text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    GEO score
-                  </p>
-                  <p className="text-2xl font-semibold text-blue-600">92 / 100</p>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    High readability, rich entities, and helpful examples.
-                  </p>
+
+                {/* After */}
+                <div className="space-y-2 rounded-2xl border border-emerald-500/40 bg-gradient-to-b from-emerald-900/60 via-slate-950/70 to-slate-950/70 p-3">
+                  <div className="mb-2 flex items-center justify-between text-[11px] text-slate-300">
+                    <span className="font-medium uppercase tracking-wide text-emerald-100">
+                      After
+                    </span>
+                    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-50">
+                      SEO 88 · GEO 92
+                    </span>
+                  </div>
+                  <div className="overflow-hidden rounded-lg border border-emerald-700/60 bg-slate-950/80">
+                    <div className="flex items-center gap-1 border-b border-emerald-800/60 bg-slate-900 px-2 py-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-200" />
+                      <span className="ml-2 text-[10px] text-slate-300">
+                        your‑product.com/ai‑seo‑platform
+                      </span>
+                    </div>
+                    <div className="space-y-1 px-3 py-2 text-[11px] text-slate-100">
+                      <p className="line-clamp-1 font-semibold">
+                        AI‑ready SEO platform for product pages
+                      </p>
+                      <p className="line-clamp-2 text-slate-300">
+                        Help search engines and AI assistants understand your product, pricing, and value
+                        with structured, readable content.
+                      </p>
+                      <ul className="mt-2 space-y-1 text-slate-200">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                          <span>Single H1, clear sections, FAQ block.</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                          <span>Product + Organization schema, clean meta.</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
               <Separator />
-              <div className="space-y-2 text-xs text-slate-600">
-                <p className="font-medium text-slate-700">Highlights you might see:</p>
+              <div className="space-y-2 text-xs text-slate-300">
+                <p className="font-medium text-slate-100">Highlights you might see:</p>
                 <ul className="space-y-1">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                     Clear, descriptive H1 and section headings.
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                     JSON-LD schema for products, articles, or local business.
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                     Balanced keyword usage and readable paragraphs.
                   </li>
                 </ul>
@@ -277,38 +289,38 @@ export default function Home() {
         {/* Features + Reviews section */}
         <section
           id="features"
-          className="mb-10 grid gap-6 border-y border-slate-100 py-8 lg:grid-cols-[1.4fr_1fr]"
+          className="mb-14 grid gap-6 border-y border-slate-800/70 py-8 lg:grid-cols-[1.4fr_1fr]"
         >
           {/* Example Results & Use Cases */}
           <div className="space-y-4">
-            <h2 className="text-sm font-semibold tracking-tight text-slate-900">
+            <h2 className="text-sm font-semibold tracking-tight text-slate-50">
               Understand every part of your page
             </h2>
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-slate-300">
               SEO Score Checker breaks your audit into focused sections so you know exactly what to fix first.
             </p>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-xl border bg-white p-4">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
                   Meta & search preview
                 </p>
-                <p className="mt-2 text-sm font-semibold text-slate-900">
+                <p className="mt-2 text-sm font-semibold text-slate-50">
                   Titles, descriptions, and social share snippets at a glance.
                 </p>
               </div>
-              <div className="rounded-xl border bg-white p-4">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
                   Structure & accessibility
                 </p>
-                <p className="mt-2 text-sm font-semibold text-slate-900">
+                <p className="mt-2 text-sm font-semibold text-slate-50">
                   Heading hierarchy, image alt text, and content-to-code ratio.
                 </p>
               </div>
-              <div className="rounded-xl border bg-white p-4">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
                   GEO & AI readiness
                 </p>
-                <p className="mt-2 text-sm font-semibold text-slate-900">
+                <p className="mt-2 text-sm font-semibold text-slate-50">
                   Readability, entities, questions, and structured data coverage.
                 </p>
               </div>
@@ -316,9 +328,9 @@ export default function Home() {
 
             <div
               id="how-it-works"
-              className="grid gap-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 sm:grid-cols-[auto,1fr]"
+              className="grid gap-4 rounded-2xl border border-dashed border-slate-700/70 bg-slate-900/70 p-4 text-xs text-slate-200 sm:grid-cols-[auto,1fr]"
             >
-              <div className="flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              <div className="flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                 <span>How it works</span>
               </div>
               <ol className="space-y-1.5">
@@ -331,44 +343,44 @@ export default function Home() {
 
           {/* Social Proof / Reviews */}
           <div id="reviews" className="space-y-4">
-            <Card className="border bg-white shadow-sm">
+            <Card className="border border-slate-700/70 bg-slate-900/70 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Quote className="h-4 w-4 text-indigo-600" />
+                <CardTitle className="flex items-center gap-2 text-sm text-slate-50">
+                  <Quote className="h-4 w-4 text-indigo-300" />
                   What people say
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs text-slate-400">
                   Short, focused audits that slot straight into existing workflows.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 text-xs text-slate-700">
-                <div className="rounded-lg border bg-slate-50 p-3">
+              <CardContent className="space-y-3 text-xs text-slate-100">
+                <div className="rounded-lg border border-slate-700/70 bg-slate-900/80 p-3">
                   <p>
                     “We run every new landing page through this tool before it goes live. It catches missing
                     headings, weak meta tags, and schema gaps in seconds.”
                   </p>
-                  <p className="mt-2 text-[11px] font-medium text-slate-500">
+                  <p className="mt-2 text-[11px] font-medium text-slate-400">
                     Growth lead at a B2B SaaS
                   </p>
                 </div>
-                <div className="rounded-lg border bg-slate-50 p-3">
+                <div className="rounded-lg border border-slate-700/70 bg-slate-900/80 p-3">
                   <p>
                     “The GEO score is the missing piece—finally a quick way to see if our content is easy for
                     AI systems to consume, not just search engines.”
                   </p>
-                  <p className="mt-2 text-[11px] font-medium text-slate-500">
+                  <p className="mt-2 text-[11px] font-medium text-slate-400">
                     Technical SEO consultant
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Alert className="border-blue-100 bg-blue-50">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-xs font-semibold">
+            <Alert className="border-blue-500/40 bg-blue-500/10">
+              <Info className="h-4 w-4 text-blue-300" />
+              <AlertTitle className="text-xs font-semibold text-slate-50">
                 Ready when you are
               </AlertTitle>
-              <AlertDescription className="text-[11px]">
+              <AlertDescription className="text-[11px] text-slate-200">
                 Paste a URL above and run your first audit in under 10 seconds. No login, no tracking, just a
                 clean report you can share with your team.
               </AlertDescription>
@@ -376,396 +388,98 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Results Section */}
-        {results && (
-          <div className="space-y-6 py-8">
-
-            {/* Dual Score Cards */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* SEO Score Card */}
-              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.score)} bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200/50`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
-                        <Search className="w-4 h-4" />
-                        Traditional SEO Score
-                      </p>
-                      <div className="flex items-baseline gap-3">
-                        <span className={`text-6xl font-bold ${getScoreColor(results.score)}`}>
-                          {results.score}
-                        </span>
-                        <span className="text-2xl text-slate-400">/100</span>
-                      </div>
-                      <Badge
-                        variant={results.score >= 80 ? 'default' : 'secondary'}
-                        className="mt-3"
-                      >
-                        {getScoreLabel(results.score)}
-                      </Badge>
-                    </div>
-
-                    <div className="w-28 h-28">
-                      <svg className="transform -rotate-90 w-28 h-28">
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="50"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="transparent"
-                          className="text-blue-100"
-                        />
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="50"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="transparent"
-                          strokeDasharray={`${2 * Math.PI * 50}`}
-                          strokeDashoffset={`${2 * Math.PI * 50 * (1 - results.score / 100)}`}
-                          className={getScoreColor(results.score)}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* GEO Score Card */}
-              <Card className={`border-2 shadow-xl ${getScoreBgColor(results.geoScore)} bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200/50`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
-                        <Brain className="w-4 h-4" />
-                        GEO Score (AI Optimization)
-                      </p>
-                      <div className="flex items-baseline gap-3">
-                        <span className={`text-6xl font-bold ${getScoreColor(results.geoScore)}`}>
-                          {results.geoScore}
-                        </span>
-                        <span className="text-2xl text-slate-400">/100</span>
-                      </div>
-                      <Badge
-                        variant={results.geoScore >= 80 ? 'default' : 'secondary'}
-                        className="mt-3"
-                      >
-                        {getScoreLabel(results.geoScore)}
-                      </Badge>
-                    </div>
-
-                    <div className="w-28 h-28">
-                      <svg className="transform -rotate-90 w-28 h-28">
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="50"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="transparent"
-                          className="text-blue-100"
-                        />
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="50"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="transparent"
-                          strokeDasharray={`${2 * Math.PI * 50}`}
-                          strokeDashoffset={`${2 * Math.PI * 50 * (1 - results.geoScore / 100)}`}
-                          className={getScoreColor(results.geoScore)}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Tabs for detailed analysis */}
-            <Tabs defaultValue="seo" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="seo">Traditional SEO</TabsTrigger>
-                <TabsTrigger value="geo">GEO Analysis</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="seo" className="space-y-6">
-
-            <div className="grid md:grid-cols-2 gap-6">
-              
-              {/* Meta Tags Card */}
-              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    Meta Tags
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="font-medium text-slate-700">Title Tag</span>
-                      <Badge variant="outline" className="text-xs">
-                        {results.titleLength} chars
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border">
-                      {results.title || 'No title found'}
-                    </p>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="font-medium text-slate-700">Meta Description</span>
-                      <Badge variant="outline" className="text-xs">
-                        {results.descriptionLength} chars
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border">
-                      {results.description || 'No description found'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Page Structure Card */}
-              <Card className="border shadow-lg hover:shadow-xl transition-shadow bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Hash className="w-5 h-5 text-purple-600" />
-                    Page Structure
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
-                    <span className="text-sm font-medium text-slate-700">H1 Headings</span>
-                    <Badge variant={results.h1Count === 1 ? 'default' : 'destructive'}>
-                      {results.h1Count}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
-                    <span className="text-sm font-medium text-slate-700">H2 Headings</span>
-                    <Badge variant="secondary">
-                      {results.h2Count}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
-                    <span className="text-sm font-medium text-slate-700">Images w/o Alt</span>
-                    <Badge variant={results.imagesWithoutAlt === 0 ? 'default' : 'destructive'}>
-                      {results.imagesWithoutAlt} / {results.totalImages}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Issues Card */}
-            {results.issues && results.issues.length > 0 && (
-              <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-700">
-                    <AlertCircle className="w-5 h-5" />
-                    Issues Found ({results.issues.length})
-                  </CardTitle>
-                  <CardDescription>
-                    These issues are hurting your SEO performance
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {results.issues.map((issue, index) => (
-                      <li key={index} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
-                        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-slate-700">{issue}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Recommendations Card */}
-            {results.recommendations && results.recommendations.length > 0 && (
-              <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-green-700">
-                    <TrendingUp className="w-5 h-5" />
-                    Recommendations ({results.recommendations.length})
-                  </CardTitle>
-                  <CardDescription>
-                    Follow these tips to improve your SEO score
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {results.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-slate-700">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-            </TabsContent>
-
-            {/* GEO Analysis Tab */}
-            <TabsContent value="geo" className="space-y-6">
-              {/* GEO Metrics Overview */}
-              <div className="grid md:grid-cols-3 gap-6">
-                {results.geoMetrics.readabilityScore && (
-                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium text-slate-600">Readability</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold text-blue-600">{results.geoMetrics.readabilityScore}</div>
-                      <p className="text-xs text-slate-500 mt-1">Flesch Reading Ease</p>
-                      <p className="text-sm text-slate-600 mt-2">Grade Level: {results.geoMetrics.gradeLevel}</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {results.geoMetrics.entities && (
-                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium text-slate-600">Entity Richness</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold text-purple-600">{results.geoMetrics.entities.total}</div>
-                      <p className="text-xs text-slate-500 mt-1">Total Entities</p>
-                      <div className="text-sm text-slate-600 mt-2 space-y-1">
-                        <div>People: {results.geoMetrics.entities.people}</div>
-                        <div>Places: {results.geoMetrics.entities.places}</div>
-                        <div>Orgs: {results.geoMetrics.entities.organizations}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {results.geoMetrics.contentToCodeRatio && (
-                  <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium text-slate-600">Content Ratio</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold text-green-600">{results.geoMetrics.contentToCodeRatio}</div>
-                      <p className="text-xs text-slate-500 mt-1">Content-to-Code</p>
-                      <p className="text-sm text-slate-600 mt-2">Paragraphs: {results.geoMetrics.totalParagraphs}</p>
-                    </CardContent>
-                  </Card>
-                )}
+        {/* Implementation section */}
+        <section
+          id="implementation"
+          className="mb-8 grid gap-8 lg:grid-cols-[1.3fr,1fr]"
+        >
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold tracking-tight text-slate-50">
+              How to implement the fixes
+            </h2>
+            <p className="text-xs text-slate-300">
+              Use the report as a practical checklist. Ship improvements in small batches and watch both SEO and
+              GEO scores climb.
+            </p>
+            <div className="space-y-3 text-xs text-slate-200">
+              <div className="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  1 · Foundations
+                </p>
+                <ul className="space-y-1.5">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-emerald-400" />
+                    <span>Update your title and meta description to match a single, clear intent.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-emerald-400" />
+                    <span>Restructure headings so each page has one H1 and logical H2 sections.</span>
+                  </li>
+                </ul>
               </div>
-
-              {/* Structured Data */}
-              {results.geoMetrics.structuredData && (
-                <Card className="border shadow-lg bg-white/90 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-yellow-600" />
-                      Structured Data
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {results.geoMetrics.structuredData.hasJsonLd ? (
-                      <div className="space-y-3">
-                        <Alert className="bg-green-50 border-green-200">
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          <AlertTitle>Schema.org Markup Found</AlertTitle>
-                          <AlertDescription>
-                            {results.geoMetrics.structuredData.scriptCount} JSON-LD script(s) detected
-                          </AlertDescription>
-                        </Alert>
-                        {results.geoMetrics.structuredData.schemas.length > 0 && (
-                          <div>
-                            <p className="text-sm font-medium mb-2">Schema Types:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {results.geoMetrics.structuredData.schemas.map((schema, idx) => (
-                                <Badge key={idx} variant="outline">{schema}</Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Alert className="bg-yellow-50 border-yellow-200">
-                        <Info className="w-4 h-4 text-yellow-600" />
-                        <AlertTitle>No Structured Data Found</AlertTitle>
-                        <AlertDescription>
-                          Consider adding Schema.org markup for better AI understanding
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* GEO Issues */}
-              {results.geoIssues && results.geoIssues.length > 0 && (
-                <Card className="border-l-4 border-l-red-500 shadow-lg bg-white/90 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-red-700">
-                      <AlertCircle className="w-5 h-5" />
-                      GEO Issues ({results.geoIssues.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
-                      {results.geoIssues.map((issue, index) => (
-                        <AccordionItem key={index} value={`issue-${index}`}>
-                          <AccordionTrigger className="text-sm">
-                            {issue}
-                          </AccordionTrigger>
-                          <AccordionContent className="text-sm text-slate-600">
-                            This issue may affect how AI systems understand and extract information from your content.
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* GEO Recommendations */}
-              {results.geoRecommendations && results.geoRecommendations.length > 0 && (
-                <Card className="border-l-4 border-l-green-500 shadow-lg bg-white/90 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-green-700">
-                      <Brain className="w-5 h-5" />
-                      GEO Recommendations ({results.geoRecommendations.length})
-                    </CardTitle>
-                    <CardDescription>
-                      Optimize for AI search engines and LLMs
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {results.geoRecommendations.map((rec, index) => (
-                        <li key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                          <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-slate-700">{rec}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
-
+              <div className="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  2 · Make it AI‑readable
+                </p>
+                <ul className="space-y-1.5">
+                  <li className="flex items-start gap-2">
+                    <Brain className="mt-0.5 h-3.5 w-3.5 text-sky-400" />
+                    <span>Shorten long paragraphs, add examples, and use FAQ blocks for direct answers.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Brain className="mt-0.5 h-3.5 w-3.5 text-sky-400" />
+                    <span>Add Schema.org JSON‑LD for your product, organization, and key content types.</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-4">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  3 · Monitor & repeat
+                </p>
+                <ul className="space-y-1.5">
+                  <li className="flex items-start gap-2">
+                    <BarChart3 className="mt-0.5 h-3.5 w-3.5 text-blue-400" />
+                    <span>Re‑run the checker after each deployment to confirm scores are trending up.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <BarChart3 className="mt-0.5 h-3.5 w-3.5 text-blue-400" />
+                    <span>Share reports with writers, SEOs, and engineers as a shared source of truth.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
-        )}
 
+          <Card className="border border-slate-700/70 bg-slate-900/70 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm text-slate-50">
+                <ImageIcon className="h-4 w-4 text-sky-300" />
+                See your brand the way AI sees it
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400">
+                Use before/after reports as visual proof that AI models can now understand and surface your
+                product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-xs text-slate-200">
+              <p>
+                Send a &quot;before&quot; screenshot with low scores and unclear content, then an &quot;after&quot;
+                screenshot with improved SEO and GEO metrics. It makes the impact of your work obvious to
+                stakeholders.
+              </p>
+              <Alert className="border-emerald-500/40 bg-emerald-500/10">
+                <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                <AlertTitle className="text-[11px] font-semibold text-slate-50">
+                  Result: AI models can actually find you
+                </AlertTitle>
+                <AlertDescription className="text-[11px] text-slate-200">
+                  Clean structure + rich entities + schema markup make it dramatically easier for AI assistants
+                  to recommend your product, quote your copy, and answer with your brand.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </div>
   )
