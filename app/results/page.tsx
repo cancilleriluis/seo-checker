@@ -156,20 +156,20 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-muted/50">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
         <header className="mb-6 flex items-center justify-between gap-4">
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-xs font-medium text-slate-700 shadow-sm backdrop-blur-sm hover:bg-white"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-white/70 px-3 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow-md"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to overview
           </button>
 
-          <span className="hidden text-xs text-slate-500 sm:inline">
+          <span className="hidden text-xs text-muted-foreground sm:inline">
             SEO & GEO report for{' '}
-            <span className="font-medium text-slate-700">
+            <span className="font-medium text-foreground">
               {url || '—'}
             </span>
           </span>
@@ -179,7 +179,7 @@ export default function ResultsPage() {
           <Card className="border bg-white/80 shadow-sm backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
-                <Search className="h-4 w-4 text-blue-600" />
+                <Search className="h-4 w-4 text-primary" />
                 Analyze another page
               </CardTitle>
               <CardDescription className="text-xs">
@@ -189,7 +189,7 @@ export default function ResultsPage() {
             <CardContent className="space-y-3">
               <div className="flex flex-col gap-3 sm:flex-row">
                 <input
-                  className="h-11 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none ring-0 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                  className="h-11 flex-1 rounded-lg border border-border bg-muted px-3 text-sm outline-none ring-0 transition-all duration-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
                   placeholder="your-website.com/page"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
@@ -214,8 +214,8 @@ export default function ResultsPage() {
                   )}
                 </Button>
               </div>
-              <p className="text-[11px] text-slate-500">
-                We&apos;ll automatically add <span className="font-mono text-slate-700">https://</span> if it&apos;s missing.
+              <p className="text-[11px] text-muted-foreground">
+                We&apos;ll automatically add <span className="font-mono text-foreground">https://</span> if it&apos;s missing.
               </p>
             </CardContent>
           </Card>
@@ -236,19 +236,19 @@ export default function ResultsPage() {
             <div className="space-y-6 py-2">
               <div className="grid gap-4 lg:grid-cols-[1.3fr,1fr]">
                 {/* SEO Score Card */}
-                <Card className={`border bg-white/90 shadow-sm ${getScoreBgColor(results.score)}`}>
+                <Card className={`animate-fade-up border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${getScoreBgColor(results.score)}`}>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between gap-6">
                       <div>
-                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                           <Search className="h-4 w-4" />
                           Traditional SEO score
                         </p>
                         <div className="flex items-baseline gap-3">
-                          <span className={`text-5xl font-semibold ${getScoreColor(results.score)}`}>
+                          <span className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.score)}`}>
                             {results.score}
                           </span>
-                          <span className="text-lg text-slate-400">/100</span>
+                          <span className="text-lg text-muted-foreground">/100</span>
                         </div>
                         <Badge
                           variant={results.score >= 80 ? 'default' : 'secondary'}
@@ -267,7 +267,7 @@ export default function ResultsPage() {
                             stroke="currentColor"
                             strokeWidth="8"
                             fill="transparent"
-                            className="text-blue-100"
+                            className="text-primary/10"
                           />
                           <circle
                             cx="48"
@@ -277,8 +277,8 @@ export default function ResultsPage() {
                             strokeWidth="8"
                             fill="transparent"
                             strokeDasharray={`${2 * Math.PI * 42}`}
-                            strokeDashoffset={`${2 * Math.PI * 42 * (1 - results.score / 100)}`}
-                            className={getScoreColor(results.score)}
+                            className={`animate-draw-ring ${getScoreColor(results.score)}`}
+                            style={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - results.score / 100) }}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -288,19 +288,19 @@ export default function ResultsPage() {
                 </Card>
 
                 {/* GEO Score Card */}
-                <Card className={`border bg-white/90 shadow-sm ${getScoreBgColor(results.geoScore)}`}>
+                <Card className={`animate-fade-up animation-delay-100 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${getScoreBgColor(results.geoScore)}`}>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between gap-6">
                       <div>
-                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                           <Brain className="h-4 w-4" />
                           GEO score (AI optimization)
                         </p>
                         <div className="flex items-baseline gap-3">
-                          <span className={`text-5xl font-semibold ${getScoreColor(results.geoScore)}`}>
+                          <span className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.geoScore)}`}>
                             {results.geoScore}
                           </span>
-                          <span className="text-lg text-slate-400">/100</span>
+                          <span className="text-lg text-muted-foreground">/100</span>
                         </div>
                         <Badge
                           variant={results.geoScore >= 80 ? 'default' : 'secondary'}
@@ -319,7 +319,7 @@ export default function ResultsPage() {
                             stroke="currentColor"
                             strokeWidth="8"
                             fill="transparent"
-                            className="text-blue-100"
+                            className="text-primary/10"
                           />
                           <circle
                             cx="48"
@@ -329,8 +329,8 @@ export default function ResultsPage() {
                             strokeWidth="8"
                             fill="transparent"
                             strokeDasharray={`${2 * Math.PI * 42}`}
-                            strokeDashoffset={`${2 * Math.PI * 42 * (1 - results.geoScore / 100)}`}
-                            className={getScoreColor(results.geoScore)}
+                            className={`animate-draw-ring ${getScoreColor(results.geoScore)}`}
+                            style={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - results.geoScore / 100) }}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -341,10 +341,10 @@ export default function ResultsPage() {
               </div>
 
               <Tabs defaultValue="seo" className="w-full">
-                <TabsList className="mb-4 grid w-full grid-cols-3">
-                  <TabsTrigger value="seo">Traditional SEO</TabsTrigger>
-                  <TabsTrigger value="geo">GEO analysis</TabsTrigger>
-                  <TabsTrigger value="priority">
+                <TabsList className="mb-4 grid w-full grid-cols-3 bg-muted/70 p-1">
+                  <TabsTrigger value="seo" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">Traditional SEO</TabsTrigger>
+                  <TabsTrigger value="geo" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">GEO analysis</TabsTrigger>
+                  <TabsTrigger value="priority" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">
                     <LayoutGrid className="mr-1.5 h-3.5 w-3.5" />
                     Priority Guide
                   </TabsTrigger>
@@ -354,22 +354,22 @@ export default function ResultsPage() {
                 <TabsContent value="seo" className="space-y-6">
                   <div className="grid gap-6 md:grid-cols-2">
                     {/* Meta tags */}
-                    <Card className="border bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-blue-600" />
+                          <FileText className="h-5 w-5 text-primary" />
                           Meta tags
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
                           <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium text-slate-700">Title tag</span>
+                            <span className="font-medium text-foreground">Title tag</span>
                             <Badge variant="outline" className="text-xs">
                               {results.titleLength} chars
                             </Badge>
                           </div>
-                          <p className="rounded-lg border bg-slate-50 p-3 text-sm text-slate-600">
+                          <p className="rounded-lg border bg-muted p-3 text-sm text-muted-foreground">
                             {results.title || 'No title found'}
                           </p>
                         </div>
@@ -378,12 +378,12 @@ export default function ResultsPage() {
 
                         <div>
                           <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium text-slate-700">Meta description</span>
+                            <span className="font-medium text-foreground">Meta description</span>
                             <Badge variant="outline" className="text-xs">
                               {results.descriptionLength} chars
                             </Badge>
                           </div>
-                          <p className="rounded-lg border bg-slate-50 p-3 text-sm text-slate-600">
+                          <p className="rounded-lg border bg-muted p-3 text-sm text-muted-foreground">
                             {results.description || 'No description found'}
                           </p>
                         </div>
@@ -391,28 +391,28 @@ export default function ResultsPage() {
                     </Card>
 
                     {/* Structure */}
-                    <Card className="border bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-100 border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Hash className="h-5 w-5 text-purple-600" />
+                          <Hash className="h-5 w-5 text-primary/80" />
                           Page structure
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between rounded-lg border bg-slate-50 p-3">
-                          <span className="text-sm font-medium text-slate-700">H1 headings</span>
+                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
+                          <span className="text-sm font-medium text-foreground">H1 headings</span>
                           <Badge variant={results.h1Count === 1 ? 'default' : 'destructive'}>
                             {results.h1Count}
                           </Badge>
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border bg-slate-50 p-3">
-                          <span className="text-sm font-medium text-slate-700">H2 headings</span>
+                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
+                          <span className="text-sm font-medium text-foreground">H2 headings</span>
                           <Badge variant="secondary">
                             {results.h2Count}
                           </Badge>
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border bg-slate-50 p-3">
-                          <span className="text-sm font-medium text-slate-700">Images without alt</span>
+                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
+                          <span className="text-sm font-medium text-foreground">Images without alt</span>
                           <Badge variant={results.imagesWithoutAlt === 0 ? 'default' : 'destructive'}>
                             {results.imagesWithoutAlt} / {results.totalImages}
                           </Badge>
@@ -423,7 +423,7 @@ export default function ResultsPage() {
 
                   {/* Issues */}
                   {results.issues && results.issues.length > 0 && (
-                    <Card className="border-l-4 border-l-red-500 bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-200 border-l-4 border-l-destructive bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-red-700">
                           <AlertCircle className="h-5 w-5" />
@@ -438,12 +438,12 @@ export default function ResultsPage() {
                           {results.issues.map((issue, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 rounded-lg border border-red-100 bg-red-50 p-3"
+                              className="flex items-start gap-3 rounded-lg border border-red-100 bg-red-50 p-3 transition-colors duration-200 hover:bg-destructive/10"
                             >
                               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
                               <div>
-                                <span className="text-sm font-medium text-slate-700">{issue.title}</span>
-                                <p className="text-xs text-slate-500 mt-1">{issue.description}</p>
+                                <span className="text-sm font-medium text-foreground">{issue.title}</span>
+                                <p className="text-xs text-muted-foreground mt-1">{issue.description}</p>
                               </div>
                             </li>
                           ))}
@@ -454,7 +454,7 @@ export default function ResultsPage() {
 
                   {/* Recommendations */}
                   {results.recommendations && results.recommendations.length > 0 && (
-                    <Card className="border-l-4 border-l-green-500 bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-300 border-l-4 border-l-green-500 bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-green-700">
                           <TrendingUp className="h-5 w-5" />
@@ -469,10 +469,10 @@ export default function ResultsPage() {
                           {results.recommendations.map((rec, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3"
+                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3 transition-colors duration-200 hover:bg-emerald-100/70"
                             >
                               <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                              <span className="text-sm text-slate-700">{rec}</span>
+                              <span className="text-sm text-foreground">{rec}</span>
                             </li>
                           ))}
                         </ul>
@@ -485,18 +485,18 @@ export default function ResultsPage() {
                 <TabsContent value="geo" className="space-y-6">
                   <div className="grid gap-6 md:grid-cols-3">
                     {results.geoMetrics.readabilityScore && (
-                      <Card className="border bg-white/90 shadow-sm">
+                      <Card className="animate-fade-up border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
                         <CardHeader>
-                          <CardTitle className="text-sm font-medium text-slate-600">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">
                             Readability
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-3xl font-bold text-blue-600">
+                          <div className="text-3xl font-bold text-primary">
                             {results.geoMetrics.readabilityScore}
                           </div>
-                          <p className="mt-1 text-xs text-slate-500">Flesch reading ease</p>
-                          <p className="mt-2 text-sm text-slate-600">
+                          <p className="mt-1 text-xs text-muted-foreground">Flesch reading ease</p>
+                          <p className="mt-2 text-sm text-muted-foreground">
                             Grade level: {results.geoMetrics.gradeLevel}
                           </p>
                         </CardContent>
@@ -504,18 +504,18 @@ export default function ResultsPage() {
                     )}
 
                     {results.geoMetrics.entities && (
-                      <Card className="border bg-white/90 shadow-sm">
+                      <Card className="animate-fade-up animation-delay-100 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
                         <CardHeader>
-                          <CardTitle className="text-sm font-medium text-slate-600">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">
                             Entity richness
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-3xl font-bold text-purple-600">
+                          <div className="text-3xl font-bold text-primary/80">
                             {results.geoMetrics.entities.total}
                           </div>
-                          <p className="mt-1 text-xs text-slate-500">Total entities</p>
-                          <div className="mt-2 space-y-1 text-sm text-slate-600">
+                          <p className="mt-1 text-xs text-muted-foreground">Total entities</p>
+                          <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                             <div>People: {results.geoMetrics.entities.people}</div>
                             <div>Places: {results.geoMetrics.entities.places}</div>
                             <div>Orgs: {results.geoMetrics.entities.organizations}</div>
@@ -525,18 +525,18 @@ export default function ResultsPage() {
                     )}
 
                     {results.geoMetrics.contentToCodeRatio && (
-                      <Card className="border bg-white/90 shadow-sm">
+                      <Card className="animate-fade-up animation-delay-200 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
                         <CardHeader>
-                          <CardTitle className="text-sm font-medium text-slate-600">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">
                             Content ratio
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-3xl font-bold text-green-600">
+                          <div className="text-3xl font-bold text-primary/70">
                             {results.geoMetrics.contentToCodeRatio}
                           </div>
-                          <p className="mt-1 text-xs text-slate-500">Content-to-code</p>
-                          <p className="mt-2 text-sm text-slate-600">
+                          <p className="mt-1 text-xs text-muted-foreground">Content-to-code</p>
+                          <p className="mt-2 text-sm text-muted-foreground">
                             Paragraphs: {results.geoMetrics.totalParagraphs}
                           </p>
                         </CardContent>
@@ -546,10 +546,10 @@ export default function ResultsPage() {
 
                   {/* Structured data */}
                   {results.geoMetrics.structuredData && (
-                    <Card className="border bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-300 border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-yellow-600" />
+                          <Sparkles className="h-5 w-5 text-primary" />
                           Structured data
                         </CardTitle>
                       </CardHeader>
@@ -591,7 +591,7 @@ export default function ResultsPage() {
 
                   {/* GEO Issues */}
                   {results.geoIssues && results.geoIssues.length > 0 && (
-                    <Card className="border-l-4 border-l-red-500 bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-400 border-l-4 border-l-destructive bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-red-700">
                           <AlertCircle className="h-5 w-5" />
@@ -602,10 +602,10 @@ export default function ResultsPage() {
                         <Accordion type="single" collapsible className="w-full">
                           {results.geoIssues.map((issue, index) => (
                             <AccordionItem key={index} value={`issue-${index}`}>
-                              <AccordionTrigger className="text-sm">
+                              <AccordionTrigger className="text-sm hover:bg-destructive/10 rounded-md px-2 -mx-2 transition-colors duration-200">
                                 {issue.title}
                               </AccordionTrigger>
-                              <AccordionContent className="text-sm text-slate-600">
+                              <AccordionContent className="text-sm text-muted-foreground">
                                 {issue.description}
                               </AccordionContent>
                             </AccordionItem>
@@ -617,7 +617,7 @@ export default function ResultsPage() {
 
                   {/* GEO recommendations */}
                   {results.geoRecommendations && results.geoRecommendations.length > 0 && (
-                    <Card className="border-l-4 border-l-green-500 bg-white/90 shadow-sm">
+                    <Card className="animate-fade-up animation-delay-500 border-l-4 border-l-green-500 bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-green-700">
                           <Brain className="h-5 w-5" />
@@ -632,10 +632,10 @@ export default function ResultsPage() {
                           {results.geoRecommendations.map((rec, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3"
+                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3 transition-colors duration-200 hover:bg-emerald-100/70"
                             >
                               <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                              <span className="text-sm text-slate-700">{rec}</span>
+                              <span className="text-sm text-foreground">{rec}</span>
                             </li>
                           ))}
                         </ul>
@@ -645,7 +645,7 @@ export default function ResultsPage() {
                 </TabsContent>
 
                 {/* Priority Guide tab */}
-                <TabsContent value="priority" className="space-y-6">
+                <TabsContent value="priority" className="animate-fade-up space-y-6">
                   <PriorityMatrix
                     issues={[
                       ...results.issues.map((issue): PriorityIssue => ({
