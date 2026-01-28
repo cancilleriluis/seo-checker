@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -46,13 +47,23 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
         {/* Header — logo mark only */}
-        <header className="flex items-center gap-2.5 px-6 py-6 sm:px-10 lg:px-16">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/25">
-            <Search className="h-3.5 w-3.5" />
+        <header className="flex items-center justify-between px-6 py-6 sm:px-10 lg:px-16">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/25">
+              <Search className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-slate-900">
+              SEO Score Checker
+            </span>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-slate-900">
-            SEO Score Checker
-          </span>
+          <nav className="flex items-center gap-3 text-xs font-medium text-slate-500">
+            <Link
+              href="/blog"
+              className="rounded-full border border-slate-200 px-3 py-1.5 transition-colors hover:border-blue-200 hover:text-blue-600"
+            >
+              Blog
+            </Link>
+          </nav>
         </header>
 
         {/* Hero */}

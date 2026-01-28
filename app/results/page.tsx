@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -176,6 +177,12 @@ export default function ResultsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/blog"
+              className="hidden rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600 sm:inline-flex"
+            >
+              Blog
+            </Link>
             <span className="hidden text-xs text-slate-400 sm:inline">
               Report for{' '}
               <span className="font-medium text-slate-700">{url || '\u2014'}</span>

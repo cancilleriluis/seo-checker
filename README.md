@@ -83,9 +83,26 @@ vercel deploy --prod
 
 Or connect your GitHub repository to Vercel for automatic deployments on every push.
 
-### Environment Variables
+### Blog posts (MDX)
 
-No environment variables required! The app works out of the box.
+Add blog posts as MDX files in:
+
+```
+content/posts
+```
+
+Each file should include frontmatter like:
+
+```md
+---
+title: "Post title"
+excerpt: "Short summary"
+category: "AI Search"
+readTime: "6 min read"
+publishedAt: "2026-01-28"
+featured: true
+---
+```
 
 ## Development Workflow
 
