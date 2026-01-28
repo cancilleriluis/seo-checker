@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -105,7 +104,6 @@ export default function ResultsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Read initial URL from the query string on the client
     const search = typeof window !== 'undefined' ? window.location.search : ''
     const params = new URLSearchParams(search)
     const initialUrl = params.get('url') || ''
@@ -148,7 +146,7 @@ export default function ResultsPage() {
       } else {
         setResults(data)
       }
-    } catch (err) {
+    } catch {
       setError('Failed to analyze. Please check the URL and try again.')
     } finally {
       setLoading(false)
@@ -156,506 +154,573 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-6 flex items-center justify-between gap-4">
-          <button
-            onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-white/70 px-3 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow-md"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to overview
-          </button>
+    <div className="relative min-h-screen overflow-hidden bg-white text-slate-900">
+      {/* Atmospheric background */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute -right-32 -top-32 h-[480px] w-[480px] rounded-full bg-blue-100/40 blur-3xl" />
+        <div className="absolute -bottom-40 -left-32 h-[420px] w-[420px] rounded-full bg-slate-100/70 blur-3xl" />
+        <div className="absolute right-1/3 top-1/2 h-[300px] w-[300px] rounded-full bg-blue-50/50 blur-3xl" />
+      </div>
 
-          <span className="hidden text-xs text-muted-foreground sm:inline">
-            SEO & GEO report for{' '}
-            <span className="font-medium text-foreground">
-              {url || '—'}
+      {/* Content */}
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8 sm:px-10 lg:px-16">
+        {/* Header */}
+        <header className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/25">
+              <Search className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-slate-900">
+              SEO Score Checker
             </span>
-          </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="hidden text-xs text-slate-400 sm:inline">
+              Report for{' '}
+              <span className="font-medium text-slate-700">{url || '\u2014'}</span>
+            </span>
+            <button
+              onClick={() => router.push('/')}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back
+            </button>
+          </div>
         </header>
 
-        <main className="space-y-6">
-          <Card className="border bg-white/80 shadow-sm backdrop-blur-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Search className="h-4 w-4 text-primary" />
-                Analyze another page
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Paste any URL to generate a fresh SEO + GEO report.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <input
-                  className="h-11 flex-1 rounded-lg border border-border bg-muted px-3 text-sm outline-none ring-0 transition-all duration-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
-                  placeholder="your-website.com/page"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && runAnalysis()}
-                />
-                <Button
-                  onClick={() => runAnalysis()}
-                  disabled={loading || !url}
-                  size="sm"
-                  className="h-11 px-5 text-sm font-semibold"
-                >
-                  {loading ? (
-                    <>
-                      <BarChart3 className="mr-2 h-4 w-4 animate-pulse" />
-                      Analyzing…
-                    </>
-                  ) : (
-                    <>
-                      <Search className="mr-2 h-4 w-4" />
-                      Run report
-                    </>
-                  )}
-                </Button>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                We&apos;ll automatically add <span className="font-mono text-foreground">https://</span> if it&apos;s missing.
-              </p>
-            </CardContent>
-          </Card>
+        <main className="space-y-8">
+          {/* Input bar */}
+          <div className="space-y-2">
+            <div className="flex max-w-2xl flex-col gap-3 sm:flex-row">
+              <Input
+                placeholder="example.com/page"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && runAnalysis()}
+                className="h-12 flex-1 rounded-xl border-slate-200 bg-slate-50/80 text-base placeholder:text-slate-400 focus-visible:border-blue-500 focus-visible:bg-white focus-visible:ring-blue-500/20"
+              />
+              <Button
+                onClick={() => runAnalysis()}
+                disabled={loading || !url}
+                className="h-12 cursor-pointer rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <BarChart3 className="mr-2 h-4 w-4 animate-pulse" />
+                    Analyzing&hellip;
+                  </>
+                ) : (
+                  <>
+                    <Search className="mr-2 h-4 w-4" />
+                    Run report
+                  </>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-slate-400">
+              We&apos;ll automatically add{' '}
+              <span className="font-mono text-slate-500">https://</span> if
+              it&apos;s missing.
+            </p>
+          </div>
 
+          {/* Error */}
           {error && (
-            <Alert className="border-red-100 bg-red-50">
+            <Alert className="rounded-xl border-red-200 bg-red-50/80">
               <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertTitle className="text-xs font-semibold">
+              <AlertTitle className="text-sm font-semibold">
                 Something went wrong
               </AlertTitle>
-              <AlertDescription className="text-[11px]">
-                {error}
-              </AlertDescription>
+              <AlertDescription className="text-xs">{error}</AlertDescription>
             </Alert>
           )}
 
+          {/* Loading skeleton */}
+          {loading && !results && (
+            <div className="space-y-8 py-4">
+              <div className="grid gap-6 lg:grid-cols-[1.3fr,1fr]">
+                <div className="h-36 animate-pulse rounded-2xl bg-slate-100" />
+                <div className="h-36 animate-pulse rounded-2xl bg-slate-100" />
+              </div>
+              <div className="h-10 w-72 animate-pulse rounded-xl bg-slate-100" />
+              <div className="space-y-4">
+                <div className="h-48 animate-pulse rounded-2xl bg-slate-50" />
+                <div className="h-48 animate-pulse rounded-2xl bg-slate-50" />
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
           {results && (
-            <div className="space-y-6 py-2">
-              <div className="grid gap-4 lg:grid-cols-[1.3fr,1fr]">
-                {/* SEO Score Card */}
-                <Card className={`animate-fade-up border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${getScoreBgColor(results.score)}`}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between gap-6">
-                      <div>
-                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                          <Search className="h-4 w-4" />
-                          Traditional SEO score
-                        </p>
-                        <div className="flex items-baseline gap-3">
-                          <span className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.score)}`}>
-                            {results.score}
-                          </span>
-                          <span className="text-lg text-muted-foreground">/100</span>
-                        </div>
-                        <Badge
-                          variant={results.score >= 80 ? 'default' : 'secondary'}
-                          className="mt-3"
+            <div className="space-y-8 py-2">
+              {/* Score cards */}
+              <div className="grid gap-6 lg:grid-cols-[1.3fr,1fr]">
+                {/* SEO Score */}
+                <div
+                  className={`animate-fade-up rounded-2xl border p-6 ${getScoreBgColor(results.score)}`}
+                >
+                  <div className="flex items-center justify-between gap-6">
+                    <div>
+                      <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-500">
+                        <Search className="h-4 w-4" />
+                        Traditional SEO score
+                      </p>
+                      <div className="flex items-baseline gap-3">
+                        <span
+                          className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.score)}`}
                         >
-                          {getScoreLabel(results.score)}
-                        </Badge>
+                          {results.score}
+                        </span>
+                        <span className="text-lg text-slate-400">/100</span>
                       </div>
-
-                      <div className="h-24 w-24">
-                        <svg className="h-24 w-24 -rotate-90 transform">
-                          <circle
-                            cx="48"
-                            cy="48"
-                            r="42"
-                            stroke="currentColor"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="text-primary/10"
-                          />
-                          <circle
-                            cx="48"
-                            cy="48"
-                            r="42"
-                            stroke="currentColor"
-                            strokeWidth="8"
-                            fill="transparent"
-                            strokeDasharray={`${2 * Math.PI * 42}`}
-                            className={`animate-draw-ring ${getScoreColor(results.score)}`}
-                            style={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - results.score / 100) }}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </div>
+                      <Badge
+                        variant={results.score >= 80 ? 'default' : 'secondary'}
+                        className="mt-3"
+                      >
+                        {getScoreLabel(results.score)}
+                      </Badge>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* GEO Score Card */}
-                <Card className={`animate-fade-up animation-delay-100 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${getScoreBgColor(results.geoScore)}`}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between gap-6">
-                      <div>
-                        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                          <Brain className="h-4 w-4" />
-                          GEO score (AI optimization)
-                        </p>
-                        <div className="flex items-baseline gap-3">
-                          <span className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.geoScore)}`}>
-                            {results.geoScore}
-                          </span>
-                          <span className="text-lg text-muted-foreground">/100</span>
-                        </div>
-                        <Badge
-                          variant={results.geoScore >= 80 ? 'default' : 'secondary'}
-                          className="mt-3"
+                    <div className="h-24 w-24">
+                      <svg className="h-24 w-24 -rotate-90 transform">
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="42"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="transparent"
+                          className="text-slate-200"
+                        />
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="42"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="transparent"
+                          strokeDasharray={`${2 * Math.PI * 42}`}
+                          className={`animate-draw-ring ${getScoreColor(results.score)}`}
+                          style={{
+                            strokeDashoffset:
+                              2 * Math.PI * 42 * (1 - results.score / 100),
+                          }}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GEO Score */}
+                <div
+                  className={`animate-fade-up animation-delay-100 rounded-2xl border p-6 ${getScoreBgColor(results.geoScore)}`}
+                >
+                  <div className="flex items-center justify-between gap-6">
+                    <div>
+                      <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-500">
+                        <Brain className="h-4 w-4" />
+                        GEO score (AI optimization)
+                      </p>
+                      <div className="flex items-baseline gap-3">
+                        <span
+                          className={`animate-score-pop text-5xl font-semibold ${getScoreColor(results.geoScore)}`}
                         >
-                          {getScoreLabel(results.geoScore)}
-                        </Badge>
+                          {results.geoScore}
+                        </span>
+                        <span className="text-lg text-slate-400">/100</span>
                       </div>
-
-                      <div className="h-24 w-24">
-                        <svg className="h-24 w-24 -rotate-90 transform">
-                          <circle
-                            cx="48"
-                            cy="48"
-                            r="42"
-                            stroke="currentColor"
-                            strokeWidth="8"
-                            fill="transparent"
-                            className="text-primary/10"
-                          />
-                          <circle
-                            cx="48"
-                            cy="48"
-                            r="42"
-                            stroke="currentColor"
-                            strokeWidth="8"
-                            fill="transparent"
-                            strokeDasharray={`${2 * Math.PI * 42}`}
-                            className={`animate-draw-ring ${getScoreColor(results.geoScore)}`}
-                            style={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - results.geoScore / 100) }}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </div>
+                      <Badge
+                        variant={results.geoScore >= 80 ? 'default' : 'secondary'}
+                        className="mt-3"
+                      >
+                        {getScoreLabel(results.geoScore)}
+                      </Badge>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    <div className="h-24 w-24">
+                      <svg className="h-24 w-24 -rotate-90 transform">
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="42"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="transparent"
+                          className="text-slate-200"
+                        />
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="42"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="transparent"
+                          strokeDasharray={`${2 * Math.PI * 42}`}
+                          className={`animate-draw-ring ${getScoreColor(results.geoScore)}`}
+                          style={{
+                            strokeDashoffset:
+                              2 * Math.PI * 42 * (1 - results.geoScore / 100),
+                          }}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              {/* Tabs */}
               <Tabs defaultValue="seo" className="w-full">
-                <TabsList className="mb-4 grid w-full grid-cols-3 bg-muted/70 p-1">
-                  <TabsTrigger value="seo" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">Traditional SEO</TabsTrigger>
-                  <TabsTrigger value="geo" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">GEO analysis</TabsTrigger>
-                  <TabsTrigger value="priority" className="transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md">
+                <TabsList className="mb-6 grid w-full grid-cols-3 rounded-xl bg-slate-100/80 p-1">
+                  <TabsTrigger
+                    value="seo"
+                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+                  >
+                    Traditional SEO
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="geo"
+                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+                  >
+                    GEO analysis
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="priority"
+                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+                  >
                     <LayoutGrid className="mr-1.5 h-3.5 w-3.5" />
                     Priority Guide
                   </TabsTrigger>
                 </TabsList>
 
                 {/* SEO tab */}
-                <TabsContent value="seo" className="space-y-6">
+                <TabsContent value="seo" className="space-y-8">
                   <div className="grid gap-6 md:grid-cols-2">
                     {/* Meta tags */}
-                    <Card className="animate-fade-up border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-primary" />
-                          Meta tags
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
+                    <div className="animate-fade-up rounded-2xl border border-slate-200 p-6">
+                      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                        Meta tags
+                      </h3>
+                      <div className="space-y-4">
                         <div>
                           <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium text-foreground">Title tag</span>
+                            <span className="font-medium text-slate-700">
+                              Title tag
+                            </span>
                             <Badge variant="outline" className="text-xs">
                               {results.titleLength} chars
                             </Badge>
                           </div>
-                          <p className="rounded-lg border bg-muted p-3 text-sm text-muted-foreground">
+                          <p className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 text-sm text-slate-500">
                             {results.title || 'No title found'}
                           </p>
                         </div>
 
-                        <Separator />
+                        <div className="border-t border-slate-100" />
 
                         <div>
                           <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium text-foreground">Meta description</span>
+                            <span className="font-medium text-slate-700">
+                              Meta description
+                            </span>
                             <Badge variant="outline" className="text-xs">
                               {results.descriptionLength} chars
                             </Badge>
                           </div>
-                          <p className="rounded-lg border bg-muted p-3 text-sm text-muted-foreground">
+                          <p className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 text-sm text-slate-500">
                             {results.description || 'No description found'}
                           </p>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
-                    {/* Structure */}
-                    <Card className="animate-fade-up animation-delay-100 border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Hash className="h-5 w-5 text-primary/80" />
-                          Page structure
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                          <span className="text-sm font-medium text-foreground">H1 headings</span>
-                          <Badge variant={results.h1Count === 1 ? 'default' : 'destructive'}>
+                    {/* Page structure */}
+                    <div className="animate-fade-up animation-delay-100 rounded-2xl border border-slate-200 p-6">
+                      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <Hash className="h-4 w-4 text-blue-600" />
+                        Page structure
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                          <span className="text-sm font-medium text-slate-700">
+                            H1 headings
+                          </span>
+                          <Badge
+                            variant={
+                              results.h1Count === 1 ? 'default' : 'destructive'
+                            }
+                          >
                             {results.h1Count}
                           </Badge>
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                          <span className="text-sm font-medium text-foreground">H2 headings</span>
-                          <Badge variant="secondary">
-                            {results.h2Count}
-                          </Badge>
+                        <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                          <span className="text-sm font-medium text-slate-700">
+                            H2 headings
+                          </span>
+                          <Badge variant="secondary">{results.h2Count}</Badge>
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border bg-muted p-3">
-                          <span className="text-sm font-medium text-foreground">Images without alt</span>
-                          <Badge variant={results.imagesWithoutAlt === 0 ? 'default' : 'destructive'}>
+                        <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+                          <span className="text-sm font-medium text-slate-700">
+                            Images without alt
+                          </span>
+                          <Badge
+                            variant={
+                              results.imagesWithoutAlt === 0
+                                ? 'default'
+                                : 'destructive'
+                            }
+                          >
                             {results.imagesWithoutAlt} / {results.totalImages}
                           </Badge>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Issues */}
                   {results.issues && results.issues.length > 0 && (
-                    <Card className="animate-fade-up animation-delay-200 border-l-4 border-l-destructive bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-red-700">
-                          <AlertCircle className="h-5 w-5" />
-                          Issues found ({results.issues.length})
-                        </CardTitle>
-                        <CardDescription>
-                          These issues are likely hurting your SEO performance.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-3">
-                          {results.issues.map((issue, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-3 rounded-lg border border-red-100 bg-red-50 p-3 transition-colors duration-200 hover:bg-destructive/10"
-                            >
-                              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
-                              <div>
-                                <span className="text-sm font-medium text-foreground">{issue.title}</span>
-                                <p className="text-xs text-muted-foreground mt-1">{issue.description}</p>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
+                    <div className="animate-fade-up animation-delay-200 rounded-2xl border border-slate-200 border-l-4 border-l-red-400 p-6">
+                      <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-red-700">
+                        <AlertCircle className="h-4 w-4" />
+                        Issues found ({results.issues.length})
+                      </h3>
+                      <p className="mb-4 text-xs text-slate-500">
+                        These issues are likely hurting your SEO performance.
+                      </p>
+                      <ul className="space-y-2.5">
+                        {results.issues.map((issue, index) => (
+                          <li
+                            key={index}
+                            className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50/60 p-3"
+                          >
+                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+                            <div>
+                              <span className="text-sm font-medium text-slate-800">
+                                {issue.title}
+                              </span>
+                              <p className="mt-0.5 text-xs text-slate-500">
+                                {issue.description}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
 
                   {/* Recommendations */}
-                  {results.recommendations && results.recommendations.length > 0 && (
-                    <Card className="animate-fade-up animation-delay-300 border-l-4 border-l-green-500 bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-green-700">
-                          <TrendingUp className="h-5 w-5" />
+                  {results.recommendations &&
+                    results.recommendations.length > 0 && (
+                      <div className="animate-fade-up animation-delay-300 rounded-2xl border border-slate-200 border-l-4 border-l-emerald-400 p-6">
+                        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-green-700">
+                          <TrendingUp className="h-4 w-4" />
                           Recommendations ({results.recommendations.length})
-                        </CardTitle>
-                        <CardDescription>
+                        </h3>
+                        <p className="mb-4 text-xs text-slate-500">
                           Quick wins and deeper fixes to raise your SEO score.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-3">
+                        </p>
+                        <ul className="space-y-2.5">
                           {results.recommendations.map((rec, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3 transition-colors duration-200 hover:bg-emerald-100/70"
+                              className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3"
                             >
-                              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                              <span className="text-sm text-foreground">{rec}</span>
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500" />
+                              <span className="text-sm text-slate-700">
+                                {rec}
+                              </span>
                             </li>
                           ))}
                         </ul>
-                      </CardContent>
-                    </Card>
-                  )}
+                      </div>
+                    )}
                 </TabsContent>
 
                 {/* GEO tab */}
-                <TabsContent value="geo" className="space-y-6">
+                <TabsContent value="geo" className="space-y-8">
                   <div className="grid gap-6 md:grid-cols-3">
                     {results.geoMetrics.readabilityScore && (
-                      <Card className="animate-fade-up border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
-                        <CardHeader>
-                          <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Readability
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-3xl font-bold text-primary">
-                            {results.geoMetrics.readabilityScore}
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground">Flesch reading ease</p>
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            Grade level: {results.geoMetrics.gradeLevel}
-                          </p>
-                        </CardContent>
-                      </Card>
+                      <div className="animate-fade-up rounded-2xl border border-slate-200 p-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                          Readability
+                        </p>
+                        <div className="mt-3 text-3xl font-bold text-blue-600">
+                          {results.geoMetrics.readabilityScore}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Flesch reading ease
+                        </p>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Grade level: {results.geoMetrics.gradeLevel}
+                        </p>
+                      </div>
                     )}
 
                     {results.geoMetrics.entities && (
-                      <Card className="animate-fade-up animation-delay-100 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
-                        <CardHeader>
-                          <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Entity richness
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-3xl font-bold text-primary/80">
-                            {results.geoMetrics.entities.total}
+                      <div className="animate-fade-up animation-delay-100 rounded-2xl border border-slate-200 p-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                          Entity richness
+                        </p>
+                        <div className="mt-3 text-3xl font-bold text-blue-600">
+                          {results.geoMetrics.entities.total}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Total entities
+                        </p>
+                        <div className="mt-2 space-y-1 text-sm text-slate-500">
+                          <div>People: {results.geoMetrics.entities.people}</div>
+                          <div>Places: {results.geoMetrics.entities.places}</div>
+                          <div>
+                            Orgs: {results.geoMetrics.entities.organizations}
                           </div>
-                          <p className="mt-1 text-xs text-muted-foreground">Total entities</p>
-                          <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                            <div>People: {results.geoMetrics.entities.people}</div>
-                            <div>Places: {results.geoMetrics.entities.places}</div>
-                            <div>Orgs: {results.geoMetrics.entities.organizations}</div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     )}
 
                     {results.geoMetrics.contentToCodeRatio && (
-                      <Card className="animate-fade-up animation-delay-200 border bg-white/90 shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
-                        <CardHeader>
-                          <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Content ratio
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-3xl font-bold text-primary/70">
-                            {results.geoMetrics.contentToCodeRatio}
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground">Content-to-code</p>
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            Paragraphs: {results.geoMetrics.totalParagraphs}
-                          </p>
-                        </CardContent>
-                      </Card>
+                      <div className="animate-fade-up animation-delay-200 rounded-2xl border border-slate-200 p-6">
+                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                          Content ratio
+                        </p>
+                        <div className="mt-3 text-3xl font-bold text-blue-600">
+                          {results.geoMetrics.contentToCodeRatio}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Content-to-code
+                        </p>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Paragraphs: {results.geoMetrics.totalParagraphs}
+                        </p>
+                      </div>
                     )}
                   </div>
 
                   {/* Structured data */}
                   {results.geoMetrics.structuredData && (
-                    <Card className="animate-fade-up animation-delay-300 border border-border bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-primary" />
-                          Structured data
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {results.geoMetrics.structuredData.hasJsonLd ? (
-                          <div className="space-y-3">
-                            <Alert className="border-green-200 bg-green-50">
-                              <CheckCircle2 className="h-4 w-4 text-green-600" />
-                              <AlertTitle>Schema.org markup found</AlertTitle>
-                              <AlertDescription>
-                                {results.geoMetrics.structuredData.scriptCount} JSON-LD script(s) detected.
-                              </AlertDescription>
-                            </Alert>
-                            {results.geoMetrics.structuredData.schemas.length > 0 && (
-                              <div>
-                                <p className="mb-2 text-sm font-medium">Schema types:</p>
-                                <div className="flex flex-wrap gap-2">
-                                  {results.geoMetrics.structuredData.schemas.map((schema, idx) => (
+                    <div className="animate-fade-up animation-delay-300 rounded-2xl border border-slate-200 p-6">
+                      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <Sparkles className="h-4 w-4 text-blue-600" />
+                        Structured data
+                      </h3>
+                      {results.geoMetrics.structuredData.hasJsonLd ? (
+                        <div className="space-y-3">
+                          <Alert className="rounded-xl border-green-200 bg-green-50/80">
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <AlertTitle className="text-sm font-semibold">
+                              Schema.org markup found
+                            </AlertTitle>
+                            <AlertDescription className="text-xs">
+                              {results.geoMetrics.structuredData.scriptCount}{' '}
+                              JSON-LD script(s) detected.
+                            </AlertDescription>
+                          </Alert>
+                          {results.geoMetrics.structuredData.schemas.length >
+                            0 && (
+                            <div>
+                              <p className="mb-2 text-sm font-medium text-slate-700">
+                                Schema types:
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {results.geoMetrics.structuredData.schemas.map(
+                                  (schema, idx) => (
                                     <Badge key={idx} variant="outline">
                                       {schema}
                                     </Badge>
-                                  ))}
-                                </div>
+                                  )
+                                )}
                               </div>
-                            )}
-                          </div>
-                        ) : (
-                          <Alert className="border-yellow-200 bg-yellow-50">
-                            <Info className="h-4 w-4 text-yellow-600" />
-                            <AlertTitle>No structured data found</AlertTitle>
-                            <AlertDescription>
-                              Consider adding Schema.org markup for better AI understanding.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </CardContent>
-                    </Card>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <Alert className="rounded-xl border-yellow-200 bg-yellow-50/80">
+                          <Info className="h-4 w-4 text-yellow-600" />
+                          <AlertTitle className="text-sm font-semibold">
+                            No structured data found
+                          </AlertTitle>
+                          <AlertDescription className="text-xs">
+                            Consider adding Schema.org markup for better AI
+                            understanding.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
                   )}
 
                   {/* GEO Issues */}
                   {results.geoIssues && results.geoIssues.length > 0 && (
-                    <Card className="animate-fade-up animation-delay-400 border-l-4 border-l-destructive bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-red-700">
-                          <AlertCircle className="h-5 w-5" />
-                          GEO issues ({results.geoIssues.length})
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
-                          {results.geoIssues.map((issue, index) => (
-                            <AccordionItem key={index} value={`issue-${index}`}>
-                              <AccordionTrigger className="text-sm hover:bg-destructive/10 rounded-md px-2 -mx-2 transition-colors duration-200">
-                                {issue.title}
-                              </AccordionTrigger>
-                              <AccordionContent className="text-sm text-muted-foreground">
-                                {issue.description}
-                              </AccordionContent>
-                            </AccordionItem>
-                          ))}
-                        </Accordion>
-                      </CardContent>
-                    </Card>
+                    <div className="animate-fade-up animation-delay-400 rounded-2xl border border-slate-200 border-l-4 border-l-red-400 p-6">
+                      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-red-700">
+                        <AlertCircle className="h-4 w-4" />
+                        GEO issues ({results.geoIssues.length})
+                      </h3>
+                      <Accordion type="single" collapsible className="w-full">
+                        {results.geoIssues.map((issue, index) => (
+                          <AccordionItem key={index} value={`issue-${index}`}>
+                            <AccordionTrigger className="-mx-2 rounded-lg px-2 text-sm">
+                              {issue.title}
+                            </AccordionTrigger>
+                            <AccordionContent className="text-sm text-slate-500">
+                              {issue.description}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </div>
                   )}
 
                   {/* GEO recommendations */}
-                  {results.geoRecommendations && results.geoRecommendations.length > 0 && (
-                    <Card className="animate-fade-up animation-delay-500 border-l-4 border-l-green-500 bg-white/90 shadow-sm transition-all duration-300 hover:shadow-md">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-green-700">
-                          <Brain className="h-5 w-5" />
-                          GEO recommendations ({results.geoRecommendations.length})
-                        </CardTitle>
-                        <CardDescription>
+                  {results.geoRecommendations &&
+                    results.geoRecommendations.length > 0 && (
+                      <div className="animate-fade-up animation-delay-500 rounded-2xl border border-slate-200 border-l-4 border-l-emerald-400 p-6">
+                        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-green-700">
+                          <Brain className="h-4 w-4" />
+                          GEO recommendations (
+                          {results.geoRecommendations.length})
+                        </h3>
+                        <p className="mb-4 text-xs text-slate-500">
                           Optimize for AI search engines and LLMs.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-3">
+                        </p>
+                        <ul className="space-y-2.5">
                           {results.geoRecommendations.map((rec, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 rounded-lg border border-green-100 bg-green-50 p-3 transition-colors duration-200 hover:bg-emerald-100/70"
+                              className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3"
                             >
-                              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                              <span className="text-sm text-foreground">{rec}</span>
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500" />
+                              <span className="text-sm text-slate-700">
+                                {rec}
+                              </span>
                             </li>
                           ))}
                         </ul>
-                      </CardContent>
-                    </Card>
-                  )}
+                      </div>
+                    )}
                 </TabsContent>
 
                 {/* Priority Guide tab */}
-                <TabsContent value="priority" className="animate-fade-up space-y-6">
+                <TabsContent
+                  value="priority"
+                  className="animate-fade-up space-y-8"
+                >
                   <PriorityMatrix
                     issues={[
-                      ...results.issues.map((issue): PriorityIssue => ({
-                        ...issue,
-                        source: 'seo',
-                      })),
-                      ...results.geoIssues.map((issue): PriorityIssue => ({
-                        ...issue,
-                        source: 'geo',
-                      })),
+                      ...results.issues.map(
+                        (issue): PriorityIssue => ({
+                          ...issue,
+                          source: 'seo',
+                        })
+                      ),
+                      ...results.geoIssues.map(
+                        (issue): PriorityIssue => ({
+                          ...issue,
+                          source: 'geo',
+                        })
+                      ),
                     ]}
                   />
                 </TabsContent>
@@ -667,4 +732,3 @@ export default function ResultsPage() {
     </div>
   )
 }
-
