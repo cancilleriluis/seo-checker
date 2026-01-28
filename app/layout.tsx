@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://seo-checker-three.vercel.app";
+const siteUrl = "https://www.aigeocheck.com";
 const siteName = "SEO Score Checker";
 const siteDescription =
   "Free SEO score checker and GEO analysis tool. Audit any URL for meta tags, headings, structured data, AI readability, and get actionable fixes. Optimize for Google and AI search engines like ChatGPT and Perplexity.";
